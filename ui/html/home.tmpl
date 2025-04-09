@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    <div class="nav">
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/">Add Session</a></li>
+            <li><a href="/">Add Daily Goals</a></li>
+            <li><a href="/">Give Feedback</a></li>
+        </ul>
+    </div>
+
+    <div class="sidebar">
+        <div class="user-profile">
+            <img src="/ui/images/user-icon.png"  class="profile-icon">
+            <p class="username">Profile</p>
+        </div>
+    </div>
+
+    <header>
+        <h1>{{.HeaderText}}</h1>
+    </header>
+
+    <div class="container">
+        <div class="box">
+            <h3>Manage Sessions</h3>
+            <a href="/add-session">
+                <button>Add New Session</button>
+            </a>
+            <a href="/sessions">
+                <button>View Sessions</button>
+            </a>
+        </div>
+
+        <div class="box">
+            <h3>Manage Daily Goals</h3>
+            <a href="/add-goal">
+                <button>Add New Goal</button>
+            </a>
+            <a href="/goals">
+                <button>View Goals</button>
+            </a>
+        </div>
+
+        <div class="box">
+            <h3>Manage Feedback</h3>
+            <a href="/give-feedback">
+                <button>Give Feedback</button>
+            </a>
+            <a href="/view-feedback">
+                <button>View Your Feedback</button>
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>
