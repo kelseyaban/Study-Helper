@@ -22,6 +22,8 @@ func (app *application) routes() http.Handler {
 	mux.HandleFunc("POST /goal", app.addGoals)
 	//Get all goal entries
 	mux.HandleFunc("GET /goals", app.listGoals)
+	//Handle delete a goal
+	mux.HandleFunc("POST /goals/delete", app.deleteGoal)
 
 	//Handle daily goals form
 	mux.HandleFunc("GET /session", app.showSessionsForm)

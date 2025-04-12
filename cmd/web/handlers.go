@@ -143,6 +143,30 @@ func (app *application) listGoals(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// the deleteGoal will delete a goal from the database
+func (app *application) deleteGoal(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Unable to parse form", http.StatusBadRequest)
+		return
+	}
+
+	idStr := r.FormValue("goal_id")
+	goalID, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid goal ID", http.StatusBadRequest)
+		return
+	}
+
+	err = app.goals.DeleteGoal(goalID)
+	if err != nil {
+		http.Error(w, "Could not delete goal", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/goals", http.StatusSeeOther)
+}
+
 // the showDailyGoals handles requests to display the daily goals form
 func (app *application) showSessionsForm(w http.ResponseWriter, r *http.Request) {
 	// Initialize template data for the feedback form

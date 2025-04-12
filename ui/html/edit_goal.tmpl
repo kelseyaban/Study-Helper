@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+   <div class="wrapper">
+        <div class="sidebar">
+            <h2>Study Helper</h2>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/sessions">View Session</a></li>
+                <li><a href="/goals">View Daily Goals</a></li>
+            </ul>
+            <div class="profile">
+            <a href="/">Profile</a>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <h1>{{.HeaderText}}</h1>
+    </header>
+
+    <div class="form-container">
+       <form action="/goal" method="POST">
+           <div class="form-group">
+               <label for="goal_text">Goal:</label>
+               <textarea id="goal_text" name="goal_text" placeholder="Enter your goal for today"
+                         class="{{if .FormErrors.goal_text}}invalid{{end}}">{{index .FormData "goal_text"}}</textarea>
+               {{with .FormErrors.goal_text}}
+                   <div class="error">{{.}}</div>
+               {{end}}
+           </div>
+  
+           <div class="form-group">
+               <label for="target_date">Target Date:</label>
+               <input type="date" id="target_date" name="target_date"
+                      value="{{index .FormData "target_date"}}"
+                      class="{{if .FormErrors.target_date}}invalid{{end}}">
+               {{with .FormErrors.target_date}}
+                   <div class="error">{{.}}</div>
+               {{end}}
+           </div>
+  
+           <div class="form-group">
+               <label for="is_completed">Completed:</label>
+               <select id="is_completed" name="is_completed">
+                   <option value="false" {{if eq (index .FormData "is_completed") "false"}}selected{{end}}>No</option>
+                   <option value="true" {{if eq (index .FormData "is_completed") "true"}}selected{{end}}>Yes</option>
+               </select>
+               {{with .FormErrors.is_completed}}
+                   <div class="error">{{.}}</div>
+               {{end}}
+           </div>
+  
+  
+           <button type="submit">Edit Goal</button>
+       </form>
+   </div>
+
+        
+</body>
+</html>

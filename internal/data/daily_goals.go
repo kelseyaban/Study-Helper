@@ -84,3 +84,15 @@ func (m *GoalsModel) GoalList() ([]*Goals, error) {
 
 	return goals, nil
 }
+
+// DeleteGoal removes a goal entry from the database using its ID
+func (m *GoalsModel) DeleteGoal(goalID int64) error {
+	query := `
+	DELETE FROM daily_goals WHERE goal_id = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	_, err := m.DB.ExecContext(ctx, query, goalID)
+	return err
+}
