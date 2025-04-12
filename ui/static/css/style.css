@@ -162,3 +162,61 @@ input::placeholder, textarea::placeholder {
   color: #aaa;
   font-size: 0.9em;
 }
+
+
+/*Table styling*/
+table {
+  width: 50%;
+  margin: 60px auto 20px auto;
+  margin-left: 500px;
+  border-collapse: collapse;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: purple;
+  color: white;
+  font-weight: bold;
+}
+
+tr:nth-child(even) {
+  background-color: #f3f3f3;
+}
+
+.edit-btn,
+.delete-btn {
+  padding: 8px 12px;
+  margin-right: 8px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: background-color 0.3s ease;
+}
+
+.edit-btn {
+  background-color: #4caf50; 
+  color: white;
+}
+
+.edit-btn:hover {
+  background-color: #45a049;
+}
+
+.delete-btn {
+  background-color: #f44336; 
+  color: white;
+}
+
+.delete-btn:hover {
+  background-color: #e53935;
+}

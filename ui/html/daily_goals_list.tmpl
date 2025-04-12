@@ -26,7 +26,7 @@
         <h1>{{.HeaderText}}</h1>
     </header>
 
-    {{ if not .GoalsList }}
+    {{ if not .GoalList }}
         <p>No feedback entries available.</p>
     {{ else }}
         <table>
@@ -34,14 +34,17 @@
                 <th>Goal</th>
                 <th>Target Date</th>
                 <th>Is Completed</th>
+                <th>Actions</th>
             </tr>
-            {{ range .GoalsList }}
+            {{ range .GoalList }}
             <tr>
-                <td>{{ .Fullname }}</td>
-                <td>{{ .Email }}</td>
-                <td>{{ .Subject }}</td>
-                <td>{{ .Message }}</td>
-                <td>{{ .CreatedAt }}</td>
+                <td>{{ .Goal_text }}</td>
+                <td>{{ .Target_date.Format "2006-01-02" }}</td>
+                <td>{{ if .Is_completed }}Yes{{ else }}No{{ end }}</td>
+                <td>
+                    <button class="edit-btn">Edit</button>
+                    <button class="delete-btn">Delete</button>
+                </td>
             </tr>
             {{ end }}
         </table>
