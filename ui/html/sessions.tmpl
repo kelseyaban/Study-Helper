@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+   <div class="wrapper">
+        <div class="sidebar">
+            <h2>Study Helper</h2>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/sessions">View Session</a></li>
+                <li><a href="/goals">View Daily Goals</a></li>
+            </ul>
+            <div class="profile">
+            <a href="/">Profile</a>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <h1>{{.HeaderText}}</h1>
+    </header>
+
+    <div class="form-container">
+        <form action="/session" method="POST">
+            <!-- Title -->
+            <div class="form-group">
+                <label for="title">Session Title:</label>
+                <input type="text" id="title" name="title" placeholder="Enter session title"
+                       value="{{index .FormData "title"}}" class="{{if .FormErrors.title}}invalid{{end}}">
+                {{with .FormErrors.title}}
+                    <div class="error">{{.}}</div>
+                {{end}}
+            </div>
+    
+            <!-- Description -->
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" placeholder="Enter a brief description"
+                          class="{{if .FormErrors.description}}invalid{{end}}">{{index .FormData "description"}}</textarea>
+                {{with .FormErrors.description}}
+                    <div class="error">{{.}}</div>
+                {{end}}
+            </div>
+    
+            <!-- Subject -->
+            <div class="form-group">
+                <label for="subject">Subject:</label>
+                <input type="text" id="subject" name="subject" placeholder="Enter subject"
+                       value="{{index .FormData "subject"}}" class="{{if .FormErrors.subject}}invalid{{end}}">
+                {{with .FormErrors.subject}}
+                    <div class="error">{{.}}</div>
+                {{end}}
+            </div>
+    
+            <!-- Start Time -->
+            <div class="form-group">
+                <label for="start_time">Start Time:</label>
+                <input type="datetime-local" id="start_time" name="start_time"
+                       value="{{index .FormData "start_time"}}" class="{{if .FormErrors.start_time}}invalid{{end}}">
+                {{with .FormErrors.start_time}}
+                    <div class="error">{{.}}</div>
+                {{end}}
+            </div>
+    
+            <!-- End Time -->
+            <div class="form-group">
+                <label for="end_time">End Time:</label>
+                <input type="datetime-local" id="end_time" name="end_time"
+                       value="{{index .FormData "end_time"}}" class="{{if .FormErrors.end_time}}invalid{{end}}">
+                {{with .FormErrors.end_time}}
+                    <div class="error">{{.}}</div>
+                {{end}}
+            </div>
+    
+            <!-- Is Completed -->
+            <div class="form-group">
+                <label for="is_completed">Completed:</label>
+                <select id="is_completed" name="is_completed">
+                    <option value="false" {{if eq (index .FormData "is_completed") "false"}}selected{{end}}>No</option>
+                    <option value="true" {{if eq (index .FormData "is_completed") "true"}}selected{{end}}>Yes</option>
+                </select>
+                {{with .FormErrors.is_completed}}
+                    <div class="error">{{.}}</div>
+                {{end}}
+            </div>
+    
+            <button type="submit">Save Session</button>
+        </form>
+    </div>
+    <div class="form-container">
+        <form action="/session" method="POST" enctype="multipart/form-data">
+    
+            <!-- Title -->
+            <div class="form-group">
+                <label for="title">Material Title:</label>
+                <input type="text" id="title" name="title" placeholder="Enter material title"
+                       value="{{index .FormData "title"}}" class="{{if .FormErrors.title}}invalid{{end}}">
+                {{with .FormErrors.title}}
+                    <div class="error">{{.}}</div>
+                {{end}}
+            </div>
+    
+            <!-- File Upload -->
+            <div class="form-group">
+                <label for="file_path">Upload File:</label>
+                <input type="file" id="file_path" name="file_path" class="{{if .FormErrors.file_path}}invalid{{end}}">
+                {{with .FormErrors.file_path}}
+                    <div class="error">{{.}}</div>
+                {{end}}
+            </div>
+    
+            <button type="submit">Upload Material</button>
+        </form>
+    </div>
+    
+</body>
+</html>

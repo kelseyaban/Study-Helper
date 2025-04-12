@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+   <div class="wrapper">
+        <div class="sidebar">
+            <h2>Study Helper</h2>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/sessions">View Session</a></li>
+                <li><a href="/goals">View Daily Goals</a></li>
+            </ul>
+            <div class="profile">
+            <a href="/">Profile</a>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <h1>{{.HeaderText}}</h1>
+    </header>
+
+    {{ if not .GoalsList }}
+        <p>No feedback entries available.</p>
+    {{ else }}
+        <table>
+            <tr>
+                <th>Goal</th>
+                <th>Target Date</th>
+                <th>Is Completed</th>
+            </tr>
+            {{ range .GoalsList }}
+            <tr>
+                <td>{{ .Fullname }}</td>
+                <td>{{ .Email }}</td>
+                <td>{{ .Subject }}</td>
+                <td>{{ .Message }}</td>
+                <td>{{ .CreatedAt }}</td>
+            </tr>
+            {{ end }}
+        </table>
+    {{ end }}
+
+        
+</body>
+</html>

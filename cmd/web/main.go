@@ -11,13 +11,17 @@ import (
 
 	// the '_' means that we will not direct use the pq package
 	_ "github.com/lib/pq"
+
+	"github.com/abankelsey/study_helper/internal/data"
 )
 
 // Dependency injection
 type application struct {
 	addr          *string
+	goals         *data.GoalsModel
 	logger        *slog.Logger                  // Logger for logging application events
 	templateCache map[string]*template.Template // Cache for HTML templates
+	users         *data.UsersModel
 }
 
 func main() {
@@ -50,8 +54,10 @@ func main() {
 	// Initialize the application with the dependencies
 	app := &application{
 		addr:          addr,
+		goals:         &data.GoalsModel{DB: db},
 		logger:        logger,
 		templateCache: templateCache,
+		users:         &data.UsersModel{DB: db},
 	}
 
 	// Start the application server
