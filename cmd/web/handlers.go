@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -132,9 +133,9 @@ func (app *application) listGoals(w http.ResponseWriter, r *http.Request) {
 	data := NewTemplateData()
 	data.Title = "Goal List"
 	data.HeaderText = "All Goal Entries"
-	data.GoalList = goals // Assign fetched journal entries to the template data
+	data.GoalList = goals // Assign fetched goals entries to the template data
 
-	// Render the journal list template
+	// Render the goal list template
 	err = app.render(w, http.StatusOK, "daily_goals_list.tmpl", data)
 	if err != nil {
 		app.logger.Error("failed to render goal list", "template", "daily_goals_list.tmpl", "error", err, "url", r.URL.Path, "method", r.Method)
@@ -169,18 +170,38 @@ func (app *application) deleteGoal(w http.ResponseWriter, r *http.Request) {
 
 // the showeditGoalForm handles requests to display the daily goals form to edit
 func (app *application) showeditGoalForm(w http.ResponseWriter, r *http.Request) {
-	// Initialize template data for the edit goal form
+	// Get goal_id from query param
+	goalIDStr := r.URL.Query().Get("goal_id")
+	goalID, err := strconv.ParseInt(goalIDStr, 10, 64)
+	if err != nil {
+		app.logger.Error("invalid goal_id", "value", goalIDStr)
+		http.Error(w, "Invalid goal ID", http.StatusBadRequest)
+		return
+	}
+
+	// Fetch the goal from DB using goal_id
+	goal, err := app.goals.GetGoalByID(goalID)
+	if err != nil {
+		app.logger.Error("failed to fetch goal for editing", "error", err)
+		http.Error(w, "Could not find goal", http.StatusInternalServerError)
+		return
+	}
+
+	// Preload the form with current goal values
 	data := NewTemplateData()
 	data.Title = "Edit Goal"
 	data.HeaderText = "Edit Goal"
+	data.FormData = map[string]string{
+		"goal_id":      fmt.Sprintf("%d", goal.Goal_id),
+		"goal_text":    goal.Goal_text,
+		"is_completed": fmt.Sprintf("%t", goal.Is_completed),
+		"target_date":  goal.Target_date.Format("2006-01-02"),
+	}
 
-	// Render the edit goals form template
-	err := app.render(w, http.StatusOK, "edit_goal.tmpl", data)
+	err = app.render(w, http.StatusOK, "edit_goal.tmpl", data)
 	if err != nil {
-		// Log the error and return Error response
-		app.logger.Error("failed to render feedback page", "template", "edit_goal.tmpl", "error", err, "url", r.URL.Path, "method", r.Method)
+		app.logger.Error("failed to render edit goal form", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
 	}
 }
 

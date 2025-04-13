@@ -13,10 +13,10 @@
             <h2>Study Helper</h2>
             <ul>
                 <li><a href="/">Home</a></li>
-                <li><a href="/session">Add New Session</a></li>
-                <li><a href="/sessions">View Sessions</a></li>
                 <li><a href="/goal">Add New Goal</a></li>
                 <li><a href="/goals">View  Goals</a></li>
+                <li><a href="/session">Add New Session</a></li>
+                <li><a href="/sessions">View Sessions</a></li>  
             </ul>
             <div class="profile">
             <a href="/">Profile</a>
@@ -44,7 +44,7 @@
                 <td>{{ .Target_date.Format "2006-01-02" }}</td>
                 <td>{{ if .Is_completed }}Yes{{ else }}No{{ end }}</td>
                 <td>
-                <a href="/goals/edit">
+                <a href="/goals/edit?goal_id={{ .Goal_id }}">
                     <button class="edit-btn">Edit</button>
                 </a>
                 <form method="POST" action="/goals/delete">

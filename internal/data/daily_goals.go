@@ -94,6 +94,20 @@ func (m *GoalsModel) DeleteGoal(goalID int64) error {
 	return err
 }
 
+func (m *GoalsModel) GetGoalByID(id int64) (*Goals, error) {
+	stmt := `
+	SELECT goal_id, goal_text, is_completed, target_date FROM daily_goals WHERE goal_id = $1`
+	row := m.DB.QueryRow(stmt, id)
+
+	var g Goals
+	err := row.Scan(&g.Goal_id, &g.Goal_text, &g.Is_completed, &g.Target_date)
+	if err != nil {
+		return nil, err
+	}
+
+	return &g, nil
+}
+
 // Edits an entry goal into the database
 func (m *GoalsModel) EditGoal(goal *Goals) error {
 	query := `
