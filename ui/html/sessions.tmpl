@@ -61,7 +61,7 @@
             <!-- Start Time -->
             <div class="form-group">
                 <label for="start_time">Start Time:</label>
-                <input type="datetime-local" id="start_time" name="start_time"
+                <input type="date" id="start_time" name="start_time"
                        value="{{index .FormData "start_time"}}" class="{{if .FormErrors.start_time}}invalid{{end}}">
                 {{with .FormErrors.start_time}}
                     <div class="error">{{.}}</div>
@@ -71,7 +71,7 @@
             <!-- End Time -->
             <div class="form-group">
                 <label for="end_time">End Time:</label>
-                <input type="datetime-local" id="end_time" name="end_time"
+                <input type="date" id="end_time" name="end_time"
                        value="{{index .FormData "end_time"}}" class="{{if .FormErrors.end_time}}invalid{{end}}">
                 {{with .FormErrors.end_time}}
                     <div class="error">{{.}}</div>

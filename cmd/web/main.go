@@ -21,7 +21,6 @@ type application struct {
 	goals         *data.GoalsModel
 	logger        *slog.Logger                  // Logger for logging application events
 	templateCache map[string]*template.Template // Cache for HTML templates
-	users         *data.UsersModel
 }
 
 func main() {
@@ -57,7 +56,6 @@ func main() {
 		goals:         &data.GoalsModel{DB: db},
 		logger:        logger,
 		templateCache: templateCache,
-		users:         &data.UsersModel{DB: db},
 	}
 
 	// Start the application server

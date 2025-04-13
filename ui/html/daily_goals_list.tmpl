@@ -42,7 +42,7 @@
                 <td>{{ .Target_date.Format "2006-01-02" }}</td>
                 <td>{{ if .Is_completed }}Yes{{ else }}No{{ end }}</td>
                 <td>
-                <a href="/goal">
+                <a href="/goals/edit">
                     <button class="edit-btn">Edit</button>
                 </a>
                 <form method="POST" action="/goals/delete">

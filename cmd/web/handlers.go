@@ -167,6 +167,110 @@ func (app *application) deleteGoal(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/goals", http.StatusSeeOther)
 }
 
+// the showeditGoalForm handles requests to display the daily goals form to edit
+func (app *application) showeditGoalForm(w http.ResponseWriter, r *http.Request) {
+	// Initialize template data for the edit goal form
+	data := NewTemplateData()
+	data.Title = "Edit Goal"
+	data.HeaderText = "Edit Goal"
+
+	// Render the edit goals form template
+	err := app.render(w, http.StatusOK, "edit_goal.tmpl", data)
+	if err != nil {
+		// Log the error and return Error response
+		app.logger.Error("failed to render feedback page", "template", "edit_goal.tmpl", "error", err, "url", r.URL.Path, "method", r.Method)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+}
+
+// editGoal will update the  info from a goal entry
+func (app *application) editGoal(w http.ResponseWriter, r *http.Request) {
+	// Parse the submitted form data
+	err := r.ParseForm()
+	if err != nil {
+		app.logger.Error("failed to parse form", "error", err)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	// Extract the goal_id from the form
+	goalIDStr := r.PostForm.Get("goal_id")
+	goalID, err := strconv.ParseInt(goalIDStr, 10, 64)
+	if err != nil {
+		app.logger.Error("invalid goal_id", "value", goalIDStr)
+		http.Error(w, "Invalid goal ID", http.StatusBadRequest)
+		return
+	}
+
+	// Extract other form values
+	goal_text := r.PostForm.Get("goal_text")
+	is_completed_str := r.PostForm.Get("is_completed")
+	target_date_str := r.PostForm.Get("target_date")
+
+	// Convert the is_completed value from string to bool
+	is_completed, err := strconv.ParseBool(is_completed_str)
+	if err != nil {
+		app.logger.Error("invalid value for is_completed", "value", is_completed_str)
+		http.Error(w, "Invalid value for completion status", http.StatusBadRequest)
+		return
+	}
+
+	// Convert target_date string to time.Time
+	target_date, err := time.Parse("2006-01-02", target_date_str) // Standard date format (YYYY-MM-DD)
+	if err != nil {
+		app.logger.Error("invalid target_date format", "value", target_date_str)
+		http.Error(w, "Invalid date format", http.StatusBadRequest)
+		return
+	}
+
+	// Create a goals object with the submitted data
+	goals := &data.Goals{
+		Goal_id:      goalID,
+		Goal_text:    goal_text,
+		Is_completed: is_completed,
+		Target_date:  target_date,
+	}
+
+	// Validate the submitted goals data
+	v := validator.NewValidator()
+	data.ValidateGoals(v, goals)
+
+	// If validation fails, re-render the form with error messages
+	if !v.ValidData() {
+		data := NewTemplateData()
+		data.Title = "Edit Goal"
+		data.HeaderText = "Edit Goal"
+		data.FormErrors = v.Errors         // Store validation errors
+		data.FormData = map[string]string{ // Retain form input values
+			"goal_id":      goalIDStr,
+			"goal_text":    goal_text,
+			"is_completed": is_completed_str,
+			"target_date":  target_date_str,
+		}
+
+		// Render the form again with errors
+		err := app.render(w, http.StatusUnprocessableEntity, "edit_goal.tmpl", data)
+		if err != nil {
+			app.logger.Error("failed to render edit goal form", "error", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+
+	// Update the goal in the database
+	err = app.goals.EditGoal(goals)
+	if err != nil {
+		app.logger.Error("failed to update goal", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	// Redirect user to the success page after updating
+	http.Redirect(w, r, "/success", http.StatusSeeOther)
+}
+
 // the showDailyGoals handles requests to display the daily goals form
 func (app *application) showSessionsForm(w http.ResponseWriter, r *http.Request) {
 	// Initialize template data for the feedback form

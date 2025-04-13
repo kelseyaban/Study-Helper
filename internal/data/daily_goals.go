@@ -47,7 +47,7 @@ func (m *GoalsModel) Insert(goals *Goals) error {
 		goals.Goal_text,
 		goals.Is_completed,
 		goals.Target_date,
-		1,
+		2,
 	).Scan(&goals.Goal_id, &goals.User_id, &goals.Created_at)
 }
 
@@ -94,5 +94,28 @@ func (m *GoalsModel) DeleteGoal(goalID int64) error {
 	defer cancel()
 
 	_, err := m.DB.ExecContext(ctx, query, goalID)
+	return err
+}
+
+// Edits an entry goal into the database
+func (m *GoalsModel) EditGoal(goal *Goals) error {
+	query := `
+        UPDATE daily_goals
+        SET goal_text = $1,
+            is_completed = $2,
+            target_date = $3
+        WHERE goal_id = $4`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	_, err := m.DB.ExecContext(
+		ctx,
+		query,
+		goal.Goal_text,
+		goal.Is_completed,
+		goal.Target_date,
+		goal.Goal_id,
+	)
 	return err
 }

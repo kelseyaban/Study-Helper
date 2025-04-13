@@ -8,10 +8,6 @@ func (app *application) routes() http.Handler {
 	mux := http.NewServeMux()
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
-	// //The login page
-	// mux.HandleFunc("GET /", app.login)
-	// //Handle user login
-	// mux.HandleFunc("POST /", app.addUser)
 
 	//the home page
 	mux.HandleFunc("GET /", app.home)
@@ -24,8 +20,12 @@ func (app *application) routes() http.Handler {
 	mux.HandleFunc("GET /goals", app.listGoals)
 	//Handle delete a goal
 	mux.HandleFunc("POST /goals/delete", app.deleteGoal)
+	//Handle edit goal form
+	mux.HandleFunc("GET /goals/edit", app.showeditGoalForm)
+	//Hnalde the edit goal
+	mux.HandleFunc("POST /goals/edit", app.editGoal)
 
-	//Handle daily goals form
+	//Handle study sessions form
 	mux.HandleFunc("GET /session", app.showSessionsForm)
 
 	mux.HandleFunc("GET /success", app.showSuccessMessage)

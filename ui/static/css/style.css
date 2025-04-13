@@ -220,3 +220,15 @@ tr:nth-child(even) {
 .delete-btn:hover {
   background-color: #e53935;
 }
+
+/* previous info */
+.previous-info {
+  background-color: #f0f0f0;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+}
+.previous-info h3 {
+  margin-top: 0;
+  color: #333;
+}
