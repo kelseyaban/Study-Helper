@@ -13,8 +13,10 @@
             <h2>Study Helper</h2>
             <ul>
                 <li><a href="/">Home</a></li>
-                <li><a href="/sessions">View Session</a></li>
-                <li><a href="/goals">View Daily Goals</a></li>
+                <li><a href="/session">Add New Session</a></li>
+                <li><a href="/sessions">View Sessions</a></li>
+                <li><a href="/goal">Add New Goal</a></li>
+                <li><a href="/goals">View  Goals</a></li>
             </ul>
             <div class="profile">
             <a href="/">Profile</a>
@@ -57,6 +59,16 @@
                     <div class="error">{{.}}</div>
                 {{end}}
             </div>
+
+              <!-- File Upload -->
+            <div class="form-group">
+                <label for="file_path">Upload File:</label>
+                <input type="file" id="file_path" name="file_path" class="{{if .FormErrors.file_path}}invalid{{end}}">
+                {{with .FormErrors.file_path}}
+                    <div class="error">{{.}}</div>
+                {{end}}
+            </div>
+    
     
             <!-- Start Time -->
             <div class="form-group">
@@ -67,6 +79,7 @@
                     <div class="error">{{.}}</div>
                 {{end}}
             </div>
+
     
             <!-- End Time -->
             <div class="form-group">
@@ -91,32 +104,7 @@
             </div>
     
             <button type="submit">Save Session</button>
-        </form>
-    </div>
-    <div class="form-container">
-        <form action="/session" method="POST" enctype="multipart/form-data">
-    
-            <!-- Title -->
-            <div class="form-group">
-                <label for="title">Material Title:</label>
-                <input type="text" id="title" name="title" placeholder="Enter material title"
-                       value="{{index .FormData "title"}}" class="{{if .FormErrors.title}}invalid{{end}}">
-                {{with .FormErrors.title}}
-                    <div class="error">{{.}}</div>
-                {{end}}
-            </div>
-    
-            <!-- File Upload -->
-            <div class="form-group">
-                <label for="file_path">Upload File:</label>
-                <input type="file" id="file_path" name="file_path" class="{{if .FormErrors.file_path}}invalid{{end}}">
-                {{with .FormErrors.file_path}}
-                    <div class="error">{{.}}</div>
-                {{end}}
-            </div>
-    
-            <button type="submit">Upload Material</button>
-        </form>
+        
     </div>
     
 </body>

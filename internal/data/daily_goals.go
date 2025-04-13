@@ -11,7 +11,6 @@ import (
 // represents a goals entry in the sytem
 type Goals struct {
 	Goal_id      int64     `json:"goal_id"`
-	User_id      string    `json:"user_id"`
 	Goal_text    string    `json:"goal_text"`
 	Is_completed bool      `json:"is_completed"`
 	Target_date  time.Time `json:"target_date"`
@@ -33,10 +32,9 @@ type GoalsModel struct {
 // Adds new todo entry into the database
 func (m *GoalsModel) Insert(goals *Goals) error {
 	query := `
-		INSERT INTO daily_goals (goal_text, is_completed, target_date,
-		user_id)
-		VALUES ($1, $2, $3, $4)
-		RETURNING goal_id, user_id, created_at`
+		INSERT INTO daily_goals (goal_text, is_completed, target_date)
+		VALUES ($1, $2, $3)
+		RETURNING goal_id, created_at`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -47,8 +45,7 @@ func (m *GoalsModel) Insert(goals *Goals) error {
 		goals.Goal_text,
 		goals.Is_completed,
 		goals.Target_date,
-		2,
-	).Scan(&goals.Goal_id, &goals.User_id, &goals.Created_at)
+	).Scan(&goals.Goal_id, &goals.Created_at)
 }
 
 // Retrieve list of all daily goal entries from the database

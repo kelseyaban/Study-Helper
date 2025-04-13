@@ -66,7 +66,7 @@ func (app *application) addGoals(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Convert target_date string to time.Time
-	target_date, err := time.Parse("2006-01-02", target_date_str) // Standard date format (YYYY-MM-DD)
+	target_date, err := time.Parse("2006-01-02", target_date_str)
 	if err != nil {
 		app.logger.Error("invalid target_date format", "value", target_date_str)
 		http.Error(w, "Invalid date format", http.StatusBadRequest)
