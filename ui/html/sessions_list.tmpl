@@ -50,7 +50,7 @@
                 <td>{{ .End_date.Format "2006-01-02" }}</td>
                 <td>{{ if .Is_completed }}Yes{{ else }}No{{ end }}</td>
                 <td>
-                <a>
+                <a href="/sessions/edit?session_id={{ .Session_id }}">
                     <button class="edit-btn">Edit</button>
                 </a>
                 <form method="POST" action="/sessions/delete">

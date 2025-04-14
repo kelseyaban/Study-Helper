@@ -33,6 +33,10 @@ func (app *application) routes() http.Handler {
 	mux.HandleFunc("GET /sessions", app.listSessions)
 	//Handle delete a session
 	mux.HandleFunc("POST /sessions/delete", app.deleteSession)
+	//Handle edit session form
+	mux.HandleFunc("GET /sessions/edit", app.showeditSessionForm)
+	//Hnalde the edit session
+	mux.HandleFunc("POST /sessions/edit", app.editSession)
 
 	mux.HandleFunc("GET /success", app.showSuccessMessage)
 

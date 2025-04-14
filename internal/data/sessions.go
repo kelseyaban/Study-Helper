@@ -101,3 +101,47 @@ func (m *SessionsModel) DeleteSession(sessionID int64) error {
 	_, err := m.DB.ExecContext(ctx, query, sessionID)
 	return err
 }
+
+// Get the session info based on the session
+func (m *SessionsModel) GetSessionByID(id int64) (*Sessions, error) {
+	stmt := `
+	SELECT session_id, title, description, subject, start_date, end_date, is_completed FROM study_sessions WHERE session_id = $1`
+	row := m.DB.QueryRow(stmt, id)
+
+	var s Sessions
+	err := row.Scan(&s.Session_id, &s.Title, &s.Description, &s.Subject, &s.Start_date, &s.End_date, &s.Is_completed)
+	if err != nil {
+		return nil, err
+	}
+
+	return &s, nil
+}
+
+// Edits an entry session into the database
+func (m *SessionsModel) EditSession(session *Sessions) error {
+	query := `
+        UPDATE study_sessions
+        SET title = $1,
+			description = $2,
+			subject = $3,
+			start_date = $4,
+			end_date = $5,
+            is_completed = $6
+        WHERE session_id = $7`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	_, err := m.DB.ExecContext(
+		ctx,
+		query,
+		session.Title,
+		session.Description,
+		session.Subject,
+		session.Start_date,
+		session.End_date,
+		session.Is_completed,
+		session.Session_id,
+	)
+	return err
+}

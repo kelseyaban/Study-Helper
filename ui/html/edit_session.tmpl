@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+   <div class="wrapper">
+        <div class="sidebar">
+            <h2>Study Helper</h2>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/goal">Add New Goal</a></li>
+                <li><a href="/goals">View  Goals</a></li>
+                <li><a href="/session">Add New Session</a></li>
+                <li><a href="/sessions">View Sessions</a></li> 
+            </ul>
+            <div class="profile">
+            <a href="/">Profile</a>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <h1>{{.HeaderText}}</h1>
+    </header>
+
+    <div class="form-container">
+    <form action="/sessions/edit" method="POST">
+        <input type="hidden" name="session_id" value="{{index .FormData "session_id"}}">
+
+            <div class="form-group">
+                <label for="title">Session Title:</label>
+                <input type="text" id="title" name="title" placeholder="Enter session title"
+                       value="{{index .FormData "title"}}" class="{{if .FormErrors.title}}invalid{{end}}">
+                {{with .FormErrors.title}}
+                    <div class="error">{{.}}</div>
+                {{end}}
+            </div>
+    
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" placeholder="Enter a brief description"
+                          class="{{if .FormErrors.description}}invalid{{end}}">{{index .FormData "description"}}</textarea>
+                {{with .FormErrors.description}}
+                    <div class="error">{{.}}</div>
+                {{end}}
+            </div>
+    
+            <div class="form-group">
+                <label for="subject">Subject:</label>
+                <input type="text" id="subject" name="subject" placeholder="Enter subject"
+                       value="{{index .FormData "subject"}}" class="{{if .FormErrors.subject}}invalid{{end}}">
+                {{with .FormErrors.subject}}
+                    <div class="error">{{.}}</div>
+                {{end}}
+            </div>
+    
+    
+            <div class="form-group">
+                <label for="start_date">Start Date:</label>
+                <input type="date" id="start_date" name="start_date"
+                    value="{{index .FormData "start_date"}}" 
+                    class="{{if .FormErrors.start_date}}invalid{{end}}">
+                {{with .FormErrors.start_date}}
+                    <div class="error">{{.}}</div>
+                {{end}}
+            </div>
+
+            <div class="form-group">
+                <label for="end_date">End Date:</label>
+                <input type="date" id="end_date" name="end_date"
+                    value="{{index .FormData "end_date"}}" class="{{if .FormErrors.end_date}}invalid{{end}}">
+                {{with .FormErrors.end_date}}
+                    <div class="error">{{.}}</div>
+                {{end}}
+            </div>
+    
+            <div class="form-group">
+                <label for="is_completed">Completed:</label>
+                <select id="is_completed" name="is_completed">
+                    <option value="false" {{if eq (index .FormData "is_completed") "false"}}selected{{end}}>No</option>
+                    <option value="true" {{if eq (index .FormData "is_completed") "true"}}selected{{end}}>Yes</option>
+                </select>
+                {{with .FormErrors.is_completed}}
+                    <div class="error">{{.}}</div>
+                {{end}}
+            </div>
+    
+            <button type="submit">Save Session</button>
+
+            <a href="/sessions" class="delete-btn">Cancel</a>
+        
+    </div>
+    </form>
+    
+</body>
+</html>

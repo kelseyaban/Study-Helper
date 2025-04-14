@@ -447,6 +447,146 @@ func (app *application) deleteSession(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/sessions", http.StatusSeeOther)
 }
 
+// the showeditSessionForm handles requests to display the session form to edit
+func (app *application) showeditSessionForm(w http.ResponseWriter, r *http.Request) {
+	// Get session_id  from query param
+	sessionIDStr := r.URL.Query().Get("session_id")
+	sessionID, err := strconv.ParseInt(sessionIDStr, 10, 64)
+	if err != nil {
+		app.logger.Error("invalid session_id", "value", sessionIDStr)
+		http.Error(w, "Invalid session ID", http.StatusBadRequest)
+		return
+	}
+
+	// Fetch the session from DB using session_id
+	session, err := app.sessions.GetSessionByID(sessionID)
+	if err != nil {
+		app.logger.Error("failed to fetch session for editing", "error", err)
+		http.Error(w, "Could not find session", http.StatusInternalServerError)
+		return
+	}
+
+	// Preload the form with current session values
+	data := NewTemplateData()
+	data.Title = "Edit Session"
+	data.HeaderText = "Edit Session"
+	data.FormData = map[string]string{
+		"session_id":   fmt.Sprintf("%d", session.Session_id),
+		"title":        session.Title,
+		"description":  session.Description,
+		"subject":      session.Subject,
+		"start_date":   session.Start_date.Format("2006-01-02"),
+		"end_date":     session.End_date.Format("2006-01-02"),
+		"is_completed": fmt.Sprintf("%t", session.Is_completed),
+	}
+
+	err = app.render(w, http.StatusOK, "edit_session.tmpl", data)
+	if err != nil {
+		app.logger.Error("failed to render edit session form", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
+func (app *application) editSession(w http.ResponseWriter, r *http.Request) {
+	// Parse the submitted form data
+	err := r.ParseForm()
+	if err != nil {
+		app.logger.Error("failed to parse form", "error", err)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	// Extract the session_id from the form
+	sessionIDStr := r.PostForm.Get("session_id")
+	sessionID, err := strconv.ParseInt(sessionIDStr, 10, 64)
+	if err != nil {
+		app.logger.Error("invalid session_id", "value", sessionIDStr)
+		http.Error(w, "Invalid session ID", http.StatusBadRequest)
+		return
+	}
+
+	// Extract other form values
+	title := r.PostForm.Get("title")
+	description := r.PostForm.Get("description")
+	subject := r.PostForm.Get("subject")
+	start_date_str := r.PostForm.Get("start_date")
+	end_date_str := r.PostForm.Get("end_date")
+	is_completed_str := r.PostForm.Get("is_completed")
+
+	// Convert start_date string to time.Time
+	start_date, err := time.Parse("2006-01-02", start_date_str)
+	if err != nil {
+		app.logger.Error("invalid start_date format", "value", start_date_str)
+		http.Error(w, "Invalid start date format", http.StatusBadRequest)
+		return
+	}
+
+	// Convert end_date string to time.Time
+	end_date, err := time.Parse("2006-01-02", end_date_str)
+	if err != nil {
+		app.logger.Error("invalid end_date format", "value", end_date_str)
+		http.Error(w, "Invalid end date format", http.StatusBadRequest)
+		return
+	}
+
+	// Convert is_completed from string to bool
+	isCompleted, err := strconv.ParseBool(is_completed_str)
+	if err != nil {
+		app.logger.Error("invalid value for is_completed", "value", is_completed_str)
+		http.Error(w, "Invalid value for completion status", http.StatusBadRequest)
+		return
+	}
+
+	// Construct sessions object
+	sessions := &data.Sessions{
+		Session_id:   sessionID,
+		Title:        title,
+		Description:  description,
+		Subject:      subject,
+		Start_date:   start_date,
+		End_date:     end_date,
+		Is_completed: isCompleted,
+	}
+
+	// Validate
+	v := validator.NewValidator()
+	data.ValidateSessions(v, sessions)
+
+	if !v.ValidData() {
+		data := NewTemplateData()
+		data.Title = "Edit Session"
+		data.HeaderText = "Edit Session"
+		data.FormErrors = v.Errors
+		data.FormData = map[string]string{
+			"session_id":   sessionIDStr,
+			"title":        title,
+			"description":  description,
+			"subject":      subject,
+			"start_date":   start_date_str,
+			"end_date":     end_date_str,
+			"is_completed": is_completed_str,
+		}
+
+		err := app.render(w, http.StatusUnprocessableEntity, "edit_session.tmpl", data)
+		if err != nil {
+			app.logger.Error("failed to render form", "error", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+
+	// Update  session
+	err = app.sessions.EditSession(sessions)
+	if err != nil {
+		app.logger.Error("failed to insert session", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/success", http.StatusSeeOther)
+}
+
 // Displays the success message page
 func (app *application) showSuccessMessage(w http.ResponseWriter, r *http.Request) {
 	// Create a new template data structure
