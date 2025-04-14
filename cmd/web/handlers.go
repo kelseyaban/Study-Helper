@@ -292,14 +292,14 @@ func (app *application) editGoal(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/success", http.StatusSeeOther)
 }
 
-// the showDailyGoals handles requests to display the daily goals form
+// the showSessionsForm handles requests to display the session form
 func (app *application) showSessionsForm(w http.ResponseWriter, r *http.Request) {
-	// Initialize template data for the feedback form
+	// Initialize template data for the session form
 	data := NewTemplateData()
 	data.Title = "Session"
 	data.HeaderText = "Add a Session"
 
-	// Render the daily goals form template
+	// Render the sessions form template
 	err := app.render(w, http.StatusOK, "sessions.tmpl", data)
 	if err != nil {
 		// Log the error and return Error response
@@ -307,6 +307,144 @@ func (app *application) showSessionsForm(w http.ResponseWriter, r *http.Request)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+}
+
+func (app *application) addSessions(w http.ResponseWriter, r *http.Request) {
+	// Parse the submitted form data
+	err := r.ParseForm()
+	if err != nil {
+		app.logger.Error("failed to parse form", "error", err)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	// Extract form values
+	title := r.Form.Get("title")
+	description := r.Form.Get("description")
+	subject := r.Form.Get("subject")
+	start_date_str := r.Form.Get("start_date")
+	end_date_str := r.Form.Get("end_date")
+	isCompletedStr := r.Form.Get("is_completed")
+
+	// Convert start_date string to time.Time
+	start_date, err := time.Parse("2006-01-02", start_date_str)
+	if err != nil {
+		app.logger.Error("invalid start_date format", "value", start_date_str)
+		http.Error(w, "Invalid start date format", http.StatusBadRequest)
+		return
+	}
+
+	// Convert end_date string to time.Time
+	end_date, err := time.Parse("2006-01-02", end_date_str)
+	if err != nil {
+		app.logger.Error("invalid end_date format", "value", end_date_str)
+		http.Error(w, "Invalid end date format", http.StatusBadRequest)
+		return
+	}
+
+	// Convert is_completed from string to bool
+	isCompleted, err := strconv.ParseBool(isCompletedStr)
+	if err != nil {
+		app.logger.Error("invalid value for is_completed", "value", isCompletedStr)
+		http.Error(w, "Invalid value for completion status", http.StatusBadRequest)
+		return
+	}
+
+	// Construct sessions object
+	sessions := &data.Sessions{
+		Title:        title,
+		Description:  description,
+		Subject:      subject,
+		Start_date:   start_date,
+		End_date:     end_date,
+		Is_completed: isCompleted,
+	}
+
+	// Validate
+	v := validator.NewValidator()
+	data.ValidateSessions(v, sessions)
+
+	if !v.ValidData() {
+		data := NewTemplateData()
+		data.Title = "Study Session"
+		data.HeaderText = "Study Session"
+		data.FormErrors = v.Errors
+		data.FormData = map[string]string{
+			"title":        title,
+			"description":  description,
+			"subject":      subject,
+			"start_date":   start_date_str,
+			"end_date":     end_date_str,
+			"is_completed": isCompletedStr,
+		}
+
+		err := app.render(w, http.StatusUnprocessableEntity, "sessions.tmpl", data)
+		if err != nil {
+			app.logger.Error("failed to render form", "error", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+
+	// Insert session
+	err = app.sessions.Insert(sessions)
+	if err != nil {
+		app.logger.Error("failed to insert session", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/success", http.StatusSeeOther)
+}
+
+// the listSessions retrieves and displays all session entries
+func (app *application) listSessions(w http.ResponseWriter, r *http.Request) {
+	// Fetch all gaol entries from the database
+	sessions, err := app.sessions.SessionList() // fetches all stored session sntries and return them as a list
+	if err != nil {
+		app.logger.Error("failed to fetch session", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	// Prepare the template data with the retrieved journal entries
+	data := NewTemplateData()
+	data.Title = "Session List"
+	data.HeaderText = "All Session Entries"
+	data.SessionList = sessions // Assign fetched session entries to the template data
+
+	// Render the session list template
+	err = app.render(w, http.StatusOK, "sessions_list.tmpl", data)
+	if err != nil {
+		app.logger.Error("failed to render session list", "template", "sessions_list.tmpl", "error", err, "url", r.URL.Path, "method", r.Method)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+}
+
+// the deleteSession will delete a session from the database
+func (app *application) deleteSession(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Unable to parse form", http.StatusBadRequest)
+		return
+	}
+
+	idStr := r.FormValue("session_id")
+	sessionID, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid session ID", http.StatusBadRequest)
+		return
+	}
+
+	err = app.sessions.DeleteSession(sessionID)
+	if err != nil {
+		http.Error(w, "Could not delete session", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/sessions", http.StatusSeeOther)
 }
 
 // Displays the success message page
@@ -325,80 +463,3 @@ func (app *application) showSuccessMessage(w http.ResponseWriter, r *http.Reques
 		return
 	}
 }
-
-//You can ignore this functions, I was just messing around with the login
-// func (app *application) login(w http.ResponseWriter, r *http.Request) {
-// 	// Initializes the template data for rendering the home page
-// 	data := NewTemplateData()
-// 	data.Title = "Login"
-// 	data.HeaderText = "Login"
-
-// 	// Render the home page template
-// 	err := app.render(w, http.StatusOK, "login.tmpl", data)
-// 	if err != nil {
-// 		// Log the error and return Error response
-// 		app.logger.Error("failed to render home page", "template", "login.tmpl", "error", err, "url", r.URL.Path, "method", r.Method)
-// 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-// 		return
-// 	}
-// }
-
-// // the addUser processes login form submissions
-// func (app *application) addUser(w http.ResponseWriter, r *http.Request) {
-// 	// // Parse the submitted form data
-// 	// err := r.ParseForm()
-// 	// if err != nil {
-// 	// 	app.logger.Error("failed to parse form", "error", err)
-// 	// 	http.Error(w, "Bad Request", http.StatusBadRequest)
-// 	// 	return
-// 	// }
-
-// 	// // Extract form values
-// 	// username := r.PostForm.Get("username")
-// 	// email := r.PostForm.Get("email")
-// 	// password_hash := r.PostForm.Get("password_hash")
-
-// 	// // Create a feedback object with the submitted data
-// 	// users := &data.Users{
-// 	// 	Username:      username,
-// 	// 	Email:         email,
-// 	// 	Password_hash: password_hash,
-// 	// }
-
-// 	// // Validate the submitted feedback data
-// 	// v := validator.NewValidator()
-// 	// data.ValidateUsers(v, users)
-
-// 	// // If validation fails, re-render the form with error messages
-// 	// if !v.ValidData() {
-// 	// 	data := NewTemplateData()
-// 	// 	data.Title = "Login"
-// 	// 	data.HeaderText = "Login"
-// 	// 	data.FormErrors = v.Errors         // Store validation errors
-// 	// 	data.FormData = map[string]string{ // Retain form input values
-// 	// 		"username":      username,
-// 	// 		"email":         email,
-// 	// 		"password_hash": password_hash,
-// 	// 	}
-
-// 	// 	// Renders the feedback form again with validation errors
-// 	// 	err := app.render(w, http.StatusUnprocessableEntity, "login.tmpl", data)
-// 	// 	if err != nil {
-// 	// 		app.logger.Error("failed to render feedback page", "template", "login.tmpl", "error", err, "url", r.URL.Path, "method", r.Method)
-// 	// 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-// 	// 		return
-// 	// 	}
-// 	// 	return
-// 	// }
-
-// 	// // Insert the feedback into the database
-// 	// err = app.users.Insert(users)
-// 	// if err != nil {
-// 	// 	app.logger.Error("failed to insert feedback", "error", err)
-// 	// 	http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-// 	// 	return
-// 	// }
-
-// 	// Redirect user to the success page after successful submission
-// 	http.Redirect(w, r, "/home", http.StatusSeeOther)
-// }

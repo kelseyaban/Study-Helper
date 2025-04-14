@@ -221,14 +221,38 @@ tr:nth-child(even) {
   background-color: #e53935;
 }
 
-/* previous info */
-.previous-info {
-  background-color: #f0f0f0;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-  border-radius: 8px;
+
+/* Errors*/
+.error {
+  color: #c12222;
+  font-size: 14px;
+  margin-top: 5px;
+  font-weight: bold;
+  display: block;
 }
-.previous-info h3 {
-  margin-top: 0;
-  color: #333;
+
+input.invalid,su
+textarea.invalid {
+  border: 1px solid #d84949;
+}
+
+/* view goal list in home */
+.goal-preview {
+  margin: 20px;
+  margin-left: 500px;
+
+  padding: 20px;
+  background-color: #f3f3f3;
+  border-radius: 10px;
+}
+
+.goal-preview table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.goal-preview th, .goal-preview td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ccc;
 }

@@ -19,7 +19,8 @@ import (
 type application struct {
 	addr          *string
 	goals         *data.GoalsModel
-	logger        *slog.Logger                  // Logger for logging application events
+	logger        *slog.Logger // Logger for logging application events
+	sessions      *data.SessionsModel
 	templateCache map[string]*template.Template // Cache for HTML templates
 }
 
@@ -55,6 +56,7 @@ func main() {
 		addr:          addr,
 		goals:         &data.GoalsModel{DB: db},
 		logger:        logger,
+		sessions:      &data.SessionsModel{DB: db},
 		templateCache: templateCache,
 	}
 

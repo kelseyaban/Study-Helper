@@ -29,8 +29,7 @@
     </header>
 
     <div class="form-container">
-        <form action="/session" method="POST">
-            <!-- Title -->
+    <form action="/session" method="POST">
             <div class="form-group">
                 <label for="title">Session Title:</label>
                 <input type="text" id="title" name="title" placeholder="Enter session title"
@@ -40,7 +39,6 @@
                 {{end}}
             </div>
     
-            <!-- Description -->
             <div class="form-group">
                 <label for="description">Description:</label>
                 <textarea id="description" name="description" placeholder="Enter a brief description"
@@ -50,7 +48,6 @@
                 {{end}}
             </div>
     
-            <!-- Subject -->
             <div class="form-group">
                 <label for="subject">Subject:</label>
                 <input type="text" id="subject" name="subject" placeholder="Enter subject"
@@ -59,39 +56,27 @@
                     <div class="error">{{.}}</div>
                 {{end}}
             </div>
-
-              <!-- File Upload -->
-            <div class="form-group">
-                <label for="file_path">Upload File:</label>
-                <input type="file" id="file_path" name="file_path" class="{{if .FormErrors.file_path}}invalid{{end}}">
-                {{with .FormErrors.file_path}}
-                    <div class="error">{{.}}</div>
-                {{end}}
-            </div>
     
     
-            <!-- Start Time -->
             <div class="form-group">
-                <label for="start_time">Start Time:</label>
-                <input type="date" id="start_time" name="start_time"
-                       value="{{index .FormData "start_time"}}" class="{{if .FormErrors.start_time}}invalid{{end}}">
-                {{with .FormErrors.start_time}}
+                <label for="start_date">Start Date:</label>
+                <input type="date" id="start_date" name="start_date"
+                    value="{{index .FormData "start_date"}}" 
+                    class="{{if .FormErrors.start_date}}invalid{{end}}">
+                {{with .FormErrors.start_date}}
                     <div class="error">{{.}}</div>
                 {{end}}
             </div>
 
-    
-            <!-- End Time -->
             <div class="form-group">
-                <label for="end_time">End Time:</label>
-                <input type="date" id="end_time" name="end_time"
-                       value="{{index .FormData "end_time"}}" class="{{if .FormErrors.end_time}}invalid{{end}}">
-                {{with .FormErrors.end_time}}
+                <label for="end_date">End Date:</label>
+                <input type="date" id="end_date" name="end_date"
+                    value="{{index .FormData "end_date"}}" class="{{if .FormErrors.end_date}}invalid{{end}}">
+                {{with .FormErrors.end_date}}
                     <div class="error">{{.}}</div>
                 {{end}}
             </div>
     
-            <!-- Is Completed -->
             <div class="form-group">
                 <label for="is_completed">Completed:</label>
                 <select id="is_completed" name="is_completed">
@@ -106,6 +91,7 @@
             <button type="submit">Save Session</button>
         
     </div>
+    </form>
     
 </body>
 </html>

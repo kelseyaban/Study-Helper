@@ -20,7 +20,7 @@ type Goals struct {
 // validates the fields of the goals struct
 func ValidateGoals(v *validator.Validator, goals *Goals) {
 	v.Check(validator.NotBlank(goals.Goal_text), "goal_text", "This field cannot be left blank")
-	v.Check(validator.MaxLength(goals.Goal_text, 100), "goal_text", "must not be more than 100 bytes long")
+	v.Check(validator.MaxLength(goals.Goal_text, 50), "goal_text", "must not be more than 50 bytes long")
 
 }
 
@@ -94,6 +94,7 @@ func (m *GoalsModel) DeleteGoal(goalID int64) error {
 	return err
 }
 
+// Get the goal info based on the goal
 func (m *GoalsModel) GetGoalByID(id int64) (*Goals, error) {
 	stmt := `
 	SELECT goal_id, goal_text, is_completed, target_date FROM daily_goals WHERE goal_id = $1`

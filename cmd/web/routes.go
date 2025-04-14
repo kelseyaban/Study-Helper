@@ -27,6 +27,12 @@ func (app *application) routes() http.Handler {
 
 	//Handle study sessions form
 	mux.HandleFunc("GET /session", app.showSessionsForm)
+	//Handle study session submissions
+	mux.HandleFunc("POST /session", app.addSessions)
+	//Get all session entries
+	mux.HandleFunc("GET /sessions", app.listSessions)
+	//Handle delete a session
+	mux.HandleFunc("POST /sessions/delete", app.deleteSession)
 
 	mux.HandleFunc("GET /success", app.showSuccessMessage)
 
