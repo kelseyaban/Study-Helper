@@ -231,7 +231,7 @@ tr:nth-child(even) {
   display: block;
 }
 
-input.invalid,su
+input.invalid,
 textarea.invalid {
   border: 1px solid #d84949;
 }
@@ -269,7 +269,7 @@ textarea.invalid {
   background-color: #f8f4ff;
   margin-top: 20px;
   margin-left:  380px;
-  border-left: 5px solid #551a79;
+  border-left: 5px solid #682c8d;
   padding: 15px 20px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -288,15 +288,101 @@ textarea.invalid {
   margin-top: 10px;
 }
 
-.edit-btn {
-  background-color: #dd2c26;
-  color: #fff;
+/* session style */
+.session-detail-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.session-card {
+  background-color: #fdfdfd;
+  margin-left: 360px;
+  border: 1px solid #ddd;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.session-title {
+  font-size: 24px;
+  margin-bottom: 15px;
+  color: #5c2d91; 
+}
+
+.session-card p {
+  font-size: 16px;
+  margin: 8px 0;
+}
+
+.actions {
+  margin-top: 20px;
+}
+
+.back-btn {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: #5c2d91;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+}
+/*Goal entries in home  */
+.goals-section {
+  max-width: 1000px;
+  margin-top: 50px;
+  margin-left: 360px;
+  padding: 1rem;
+}
+.goals-section p{
+  margin: 8px 0;
+  font-size: 15px;
+}
+section .add-goal-prompt {
+  margin: 10px 0;
+  font-size: 20px;
+}
+
+.goal-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.goal-card {
+  background-color: #f9f1ff;
+  border: 2px solid #d6b8f7;
+  border-radius: 10px;
+  padding: 15px;
+  width: 300px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.goal-card h4 {
+  color: #6a0dad;
+  margin-bottom: 10px;
+}
+
+.goal-actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.goal-actions button {
+  padding: 5px 10px;
   border: none;
-  padding: 6px 12px;
   border-radius: 4px;
   cursor: pointer;
 }
 
-.edit-btn:hover {
-  background-color: #8a2321;
+.editbutton {
+  background-color: #4caf50;
+  margin-left: 140px ;
+  color: white;
+}
+
+.delete-btn {
+  background-color: #f44336;
+  color: white;
 }

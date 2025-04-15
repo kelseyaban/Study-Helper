@@ -59,6 +59,9 @@
                     <input type="hidden" name="session_id" value="{{ .Session_id }}">
                     <button type="submit" class="delete-btn">Delete</button>
                 </form>
+                <a href="/sessions/start?session_id={{ .Session_id }}">
+                    <button class="start-btn">Start</button>
+                </a>
                 </td>
             </tr>          
                 

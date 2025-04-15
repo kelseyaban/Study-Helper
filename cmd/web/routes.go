@@ -37,6 +37,8 @@ func (app *application) routes() http.Handler {
 	mux.HandleFunc("GET /sessions/edit", app.showeditSessionForm)
 	//Hnalde the edit session
 	mux.HandleFunc("POST /sessions/edit", app.editSession)
+	//Handle show session form
+	mux.HandleFunc("GET /sessions/start", app.showstartSessionInfo)
 
 	//Handle quote form
 	mux.HandleFunc("GET /quote", app.showQuoteForm)

@@ -17,11 +17,21 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	data.Title = "Home"
 	data.HeaderText = "Welcome"
 
-	// Render the home page template
-	err := app.render(w, http.StatusOK, "home.tmpl", data)
+	// Fetch all goals for display on the homepage
+	goals, err := app.goals.GoalList()
 	if err != nil {
-		// Log the error and return Error response
-		app.logger.Error("failed to render home page", "template", "home.tmpl", "error", err, "url", r.URL.Path, "method", r.Method)
+		app.logger.Error("failed to fetch goals for homepage", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	//  Assign to template data so they render on the home page
+	data.GoalList = goals
+
+	// Render the home page template
+	err = app.render(w, http.StatusOK, "home.tmpl", data)
+	if err != nil {
+		app.logger.Error("failed to render home page", "template", "home.tmpl", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -585,6 +595,46 @@ func (app *application) editSession(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/success", http.StatusSeeOther)
+}
+
+// the showstartSessionInfo handles requests to display the session
+func (app *application) showstartSessionInfo(w http.ResponseWriter, r *http.Request) {
+	// Get session_id  from query param
+	sessionIDStr := r.URL.Query().Get("session_id")
+	sessionID, err := strconv.ParseInt(sessionIDStr, 10, 64)
+	if err != nil {
+		app.logger.Error("invalid session_id", "value", sessionIDStr)
+		http.Error(w, "Invalid session ID", http.StatusBadRequest)
+		return
+	}
+
+	// Fetch the session from DB using session_id
+	session, err := app.sessions.GetSessionByID(sessionID)
+	if err != nil {
+		app.logger.Error("failed to fetch session for editing", "error", err)
+		http.Error(w, "Could not find session", http.StatusInternalServerError)
+		return
+	}
+
+	// Preload the form with current session values
+	data := NewTemplateData()
+	data.Title = "Session Started"
+	data.HeaderText = "Session Started"
+	data.FormData = map[string]string{
+		"session_id":   fmt.Sprintf("%d", session.Session_id),
+		"title":        session.Title,
+		"description":  session.Description,
+		"subject":      session.Subject,
+		"start_date":   session.Start_date.Format("2006-01-02"),
+		"end_date":     session.End_date.Format("2006-01-02"),
+		"is_completed": fmt.Sprintf("%t", session.Is_completed),
+	}
+
+	err = app.render(w, http.StatusOK, "session_start.tmpl", data)
+	if err != nil {
+		app.logger.Error("failed to render edit session form", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
 }
 
 // the showQuoteForm handles requests to display the quote form

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    <div class="wrapper">
+        <div class="sidebar">
+            <h2>Study Helper</h2>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/goal">Add New Goal</a></li>
+                <li><a href="/goals">View Goals</a></li>
+                <li><a href="/session">Add New Session</a></li>
+                <li><a href="/sessions">View Sessions</a></li>
+                <li><a href="/quote">Add Quote</a></li>
+                <li><a href="/quotes">View Quotes</a></li> 
+            </ul>
+            <div class="profile">
+                <a href="/">Profile</a>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <h1>{{.HeaderText}}</h1>
+    </header>
+
+    <div class="session-card">
+        <h2 class="session-title">{{index .FormData "title"}}</h2>
+        <p><strong>Description:</strong> {{index .FormData "description"}}</p>
+        <p><strong>Subject:</strong> {{index .FormData "subject"}}</p>
+        <p><strong>Start Date:</strong> {{index .FormData "start_date"}}</p>
+        <p><strong>End Date:</strong> {{index .FormData "end_date"}}</p>
+        <p><strong>Completed:</strong>
+            {{if eq (index .FormData "is_completed") "true"}}Yes{{else}}No{{end}}
+        </p>
+        <a href="/sessions" class="back-btn">Go Back</a>
+    </div>
+
+</body>
+</html>

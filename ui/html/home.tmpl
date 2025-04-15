@@ -42,16 +42,7 @@
                 </a>
             </div>
 
-            <div class="box">
-                <h3>Manage Daily Goals</h3>
-                <a href="/goal">
-                    <button>Add New Goal</button>
-                </a>
-                <a href="/goals">
-                    <button>View Goals</button>
-                </a>
-            </div>
-
+           
             <div class="box">
                 <h3>Quotes</h3>
                 <a href="/quote">
@@ -61,7 +52,39 @@
                     <button>View Quotes</button>
                 </a>
             </div>
+
+            
         </div>
+
+
+        <section class="goals-section">
+        <h1>Goals</h1>
+        <p class="add-goal-prompt">Have a goal in mind? <a href="/goal">Add one</a></p>
+
+        {{ if not .GoalList }}
+            <p>No goals yet.</p>
+        {{ else }}
+            <div class="goal-cards">
+                {{ range .GoalList }}
+                    <div class="goal-card">
+                        <h4>{{ .Goal_text }}</h4>
+                        <p><strong>Target:</strong> {{ .Target_date.Format "2006-01-02" }}</p>
+                        <p><strong>Status:</strong> {{ if .Is_completed }} Completed{{ else }} In Progress{{ end }}</p>
+                        <div class="goal-actions">
+                            <a href="/goals/edit?goal_id={{ .Goal_id }}">
+                                <button class="editbutton">Edit</button>
+                            </a>
+                            <form method="POST" action="/goals/delete">
+                                <input type="hidden" name="goal_id" value="{{ .Goal_id }}">
+                                <button type="submit" class="delete-btn">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                {{ end }}
+            </div>
+        {{ end }}
+    </section>
+
   
 </body>
 </html>
