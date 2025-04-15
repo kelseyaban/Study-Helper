@@ -18,10 +18,10 @@
                 <li><a href="/session">Add New Session</a></li>
                 <li><a href="/sessions">View Sessions</a></li>
                 <li><a href="/quote">Add Quote</a></li>
-                <li><a href="/quotes">View Quotes</a></li> 
+                <li><a href="/quotes">View Quotes</a></li>  
             </ul>
             <div class="profile">
-            <a href="/">Profile</a>
+                <a href="/">Profile</a>
             </div>
         </div>
     </div>
@@ -29,11 +29,24 @@
     <header>
         <h1>{{.HeaderText}}</h1>
     </header>
-    <main>
-        <div class="success-message">
-            <h2>Thank You!</h2>
-        </div>
-    </main>
-  
+
+    <div class="quote-container">
+        {{ if not .QuoteList }}
+            <p>No quotes yet. Add one to stay inspired!</p>
+        {{ else }}
+            {{ range .QuoteList }}
+                <div class="quote-card">
+                    <div class="quote-content">“{{ .Content }}”</div>
+                    <div class="quote-actions">
+                        <form method="POST" action="/quotes/delete">
+                            <input type="hidden" name="quote_id" value="{{ .Quote_id }}">
+                            <button type="submit" class="delete-btn">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            {{ end }}
+        {{ end }}
+    </div>
+
 </body>
 </html>

@@ -18,10 +18,10 @@
                 <li><a href="/session">Add New Session</a></li>
                 <li><a href="/sessions">View Sessions</a></li>
                 <li><a href="/quote">Add Quote</a></li>
-                <li><a href="/quotes">View Quotes</a></li> 
+                <li><a href="/quotes">View Quotes</a></li>
             </ul>
             <div class="profile">
-            <a href="/">Profile</a>
+                <a href="/">Profile</a>
             </div>
         </div>
     </div>
@@ -29,11 +29,22 @@
     <header>
         <h1>{{.HeaderText}}</h1>
     </header>
-    <main>
-        <div class="success-message">
-            <h2>Thank You!</h2>
-        </div>
-    </main>
+
+    <div class="form-container">
+       <form action="/quote" method="POST">
+           <div class="form-group">
+                <label for="content">Quote:</label>
+               <textarea id="content" name="content" placeholder="Write your motivational quote"
+                         class="{{if .FormErrors.content}}invalid{{end}}">{{index .FormData "content"}}</textarea>
+               {{with .FormErrors.content}}
+                   <div class="error">{{.}}</div>
+               {{end}}
+           </div>
+
   
+           <button type="submit">Save Quote</button>
+       </form>
+   </div>
+
 </body>
 </html>

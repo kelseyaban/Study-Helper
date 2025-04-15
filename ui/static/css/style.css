@@ -256,3 +256,47 @@ textarea.invalid {
   text-align: left;
   border-bottom: 1px solid #ccc;
 }
+
+/* quote style  */
+.quote-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 20px;
+}
+
+.quote-card {
+  background-color: #f8f4ff;
+  margin-top: 20px;
+  margin-left:  380px;
+  border-left: 5px solid #551a79;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: calc(100% - 40px);
+  max-width: 500px;
+}
+
+.quote-content {
+  font-style: italic;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.quote-actions {
+  text-align: right;
+  margin-top: 10px;
+}
+
+.edit-btn {
+  background-color: #dd2c26;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.edit-btn:hover {
+  background-color: #8a2321;
+}

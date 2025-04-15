@@ -20,6 +20,7 @@ type application struct {
 	addr          *string
 	goals         *data.GoalsModel
 	logger        *slog.Logger // Logger for logging application events
+	quotes        *data.QuotesModel
 	sessions      *data.SessionsModel
 	templateCache map[string]*template.Template // Cache for HTML templates
 }
@@ -53,9 +54,11 @@ func main() {
 
 	// Initialize the application with the dependencies
 	app := &application{
-		addr:          addr,
+		addr: addr,
+
 		goals:         &data.GoalsModel{DB: db},
 		logger:        logger,
+		quotes:        &data.QuotesModel{DB: db},
 		sessions:      &data.SessionsModel{DB: db},
 		templateCache: templateCache,
 	}

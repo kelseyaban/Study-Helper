@@ -29,7 +29,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 // the showDailyGoals handles requests to display the daily goals form
 func (app *application) showDailyGoalsForm(w http.ResponseWriter, r *http.Request) {
-	// Initialize template data for the feedback form
+	// Initialize template data for the goals form
 	data := NewTemplateData()
 	data.Title = "Daily Goals"
 	data.HeaderText = "Daily Goals"
@@ -585,6 +585,126 @@ func (app *application) editSession(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/success", http.StatusSeeOther)
+}
+
+// the showQuoteForm handles requests to display the quote form
+func (app *application) showQuoteForm(w http.ResponseWriter, r *http.Request) {
+	// Initialize template data for the quote form
+	data := NewTemplateData()
+	data.Title = "Quote"
+	data.HeaderText = "Add a Motivational Quote"
+
+	// Render the quote form template
+	err := app.render(w, http.StatusOK, "quotes.tmpl", data)
+	if err != nil {
+		// Log the error and return Error response
+		app.logger.Error("failed to render quotes page", "template", "quotes.tmpl", "error", err, "url", r.URL.Path, "method", r.Method)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+}
+
+// the addQuote processes quote form submissions
+func (app *application) addQuote(w http.ResponseWriter, r *http.Request) {
+	// Parse the submitted form data
+	err := r.ParseForm()
+	if err != nil {
+		app.logger.Error("failed to parse form", "error", err)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	// Extract form values
+	content := r.PostForm.Get("content")
+
+	// Create a quote object with the submitted data
+	quotes := &data.Quotes{
+		Content: content,
+	}
+
+	// Validate the submitted quote data
+	v := validator.NewValidator()
+	data.ValidateQuotes(v, quotes)
+
+	// If validation fails, re-render the form with error messages
+	if !v.ValidData() {
+		data := NewTemplateData()
+		data.Title = "Quotes"
+		data.HeaderText = "Submit Quote"
+		data.FormErrors = v.Errors         // Store validation errors
+		data.FormData = map[string]string{ // Retain form input values
+			"content": content,
+		}
+
+		// Renders the quote form again with validation errors
+		err := app.render(w, http.StatusUnprocessableEntity, "quotes.tmpl", data)
+		if err != nil {
+			app.logger.Error("failed to render quote page", "template", "quotes.tmpl", "error", err, "url", r.URL.Path, "method", r.Method)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+
+	// Insert the quote into the database
+	err = app.quotes.Insert(quotes)
+	if err != nil {
+		app.logger.Error("failed to insert quote", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	// Redirect user to the success page after successful submission
+	http.Redirect(w, r, "/success", http.StatusSeeOther)
+}
+
+// the listQuotes handles requests to display a list of the submitted quote entries
+func (app *application) listQuotes(w http.ResponseWriter, r *http.Request) {
+	// Fetch all quote entries from the database
+	quotes, err := app.quotes.QuoteList() // fetches all stored quote sntries and return them as a list
+	if err != nil {
+		app.logger.Error("failed to fetch quote", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	// Prepares the template data with the list of quote entries
+	data := NewTemplateData()
+	data.Title = "Quotes"
+	data.HeaderText = "Quotes"
+	data.QuoteList = quotes // Pass quote data to the template
+
+	// Render the quote list template
+	err = app.render(w, http.StatusOK, "quotes_list.tmpl", data)
+	if err != nil {
+		app.logger.Error("failed to render quote list", "template", "quotes_list.tmpl", "error", err, "url", r.URL.Path, "method", r.Method)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+}
+
+// the deleteQuote will delete a quote from the database
+func (app *application) deleteQuote(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Unable to parse form", http.StatusBadRequest)
+		return
+	}
+
+	idStr := r.FormValue("quote_id")
+	quoteID, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid quote ID", http.StatusBadRequest)
+		return
+	}
+
+	err = app.quotes.DeleteQuote(quoteID)
+	if err != nil {
+		http.Error(w, "Could not delete quote", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/quotes", http.StatusSeeOther)
 }
 
 // Displays the success message page

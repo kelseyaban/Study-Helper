@@ -38,6 +38,15 @@ func (app *application) routes() http.Handler {
 	//Hnalde the edit session
 	mux.HandleFunc("POST /sessions/edit", app.editSession)
 
+	//Handle quote form
+	mux.HandleFunc("GET /quote", app.showQuoteForm)
+	//Handle quote submissions
+	mux.HandleFunc("POST /quote", app.addQuote)
+	//Get all quote entries
+	mux.HandleFunc("GET /quotes", app.listQuotes)
+	//Handle delete a quote
+	mux.HandleFunc("POST /quotes/delete", app.deleteQuote)
+
 	mux.HandleFunc("GET /success", app.showSuccessMessage)
 
 	return app.loggingMiddleware(mux)

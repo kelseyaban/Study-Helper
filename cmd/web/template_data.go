@@ -9,6 +9,7 @@ type TemplateData struct {
 	FormData    map[string]string
 	GoalList    []*data.Goals    //stores the list of goal entries
 	SessionList []*data.Sessions //stores the list of session entries
+	QuoteList   []*data.Quotes   //stores the list of quote entries
 
 }
 
@@ -19,6 +20,7 @@ func NewTemplateData() *TemplateData {
 		FormErrors:  map[string]string{},
 		FormData:    map[string]string{},
 		GoalList:    []*data.Goals{},    // Initialize the list as an empty slice
+		QuoteList:   []*data.Quotes{},   // Initialize the list as an empty slice
 		SessionList: []*data.Sessions{}, // Initialize the list as an empty slice
 
 	}

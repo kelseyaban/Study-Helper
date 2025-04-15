@@ -6,3 +6,5 @@ CREATE TABLE daily_goals (
  is_completed boolean DEFAULT 'false',
  created_at timestamp(0) WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
+
+
