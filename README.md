@@ -2,6 +2,9 @@
 Welcome to my Study Helper App. A simple web app that helps users keep track of their daily goals, study sessions, and even a few motivational quotes along the way.
 This project is all about productivity and positivity.  Whether you're planning your study hours or just want to stay motivated, this app has you covered.
 
+## Test 1 Demo Video
+[Study Helper App Demo](https://youtu.be/5wyya8JPVOA)
+
 ## Features
 
 ### Daily Goals & Study Sessions
