@@ -28,10 +28,13 @@
 
     <header>
         <h1>{{.HeaderText}}</h1>
+        {{with .Flash}}
+        <div class="flash-message">{{.}}</div>
+        {{end}}
     </header>
 
     {{ if not .GoalList }}
-        <p>No feedback entries available.</p>
+        <p class="message">No Goal entries available.</p>
     {{ else }}
         <table>
             <tr>
@@ -49,7 +52,7 @@
                 <a href="/goals/edit?goal_id={{ .Goal_id }}">
                     <button class="edit-btn">Edit</button>
                 </a>
-                <form method="POST" action="/goals/delete">
+                <form method="POST" action="/goals/delete" onsubmit="return confirm('Are you sure you want to delete?');">
                     <input type="hidden" name="goal_id" value="{{ .Goal_id }}">
                     <button type="submit" class="delete-btn">Delete</button>
                 </form>

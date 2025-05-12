@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    <header>
+        <h1>{{.HeaderText}}</h1>
+    </header>
+
+    <div class="form-container">
+        <form action="/user/signup" method="POST">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" 
+                       value="{{index .FormData "name"}}" 
+                       class="{{if .FormErrors.name}}invalid{{end}}">
+                {{with .FormErrors.name}}
+                    <div class="error">{{.}}</div>
+                {{end}}
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" 
+                       value="{{index .FormData "email"}}" 
+                       class="{{if .FormErrors.email}}invalid{{end}}">
+                {{with .FormErrors.email}}
+                    <div class="error">{{.}}</div>
+                {{end}}
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password"
+                       class="{{if .FormErrors.password}}invalid{{end}}">
+                {{with .FormErrors.password}}
+                    <div class="error">{{.}}</div>
+                {{end}}
+            </div>
+            
+            <button type="submit">Sign Up</button>
+            <a href="/user/login"><button type="button">Login</button></a>
+        </form>
+    </div>
+
+</body>
+</html>

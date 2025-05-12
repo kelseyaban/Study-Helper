@@ -28,17 +28,20 @@
 
     <header>
         <h1>{{.HeaderText}}</h1>
+        {{with .Flash}}
+        <div class="flash-message">{{.}}</div>
+        {{end}}
     </header>
 
     <div class="quote-container">
         {{ if not .QuoteList }}
-            <p>No quotes yet. Add one to stay inspired!</p>
+            <p class="flash-message">No quotes yet. Add one to stay inspired!</p>
         {{ else }}
             {{ range .QuoteList }}
                 <div class="quote-card">
                     <div class="quote-content">“{{ .Content }}”</div>
                     <div class="quote-actions">
-                        <form method="POST" action="/quotes/delete">
+                        <form method="POST" action="/quotes/delete" onsubmit="return confirm('Are you sure you want to delete?');">
                             <input type="hidden" name="quote_id" value="{{ .Quote_id }}">
                             <button type="submit" class="delete-btn">Delete</button>
                         </form>

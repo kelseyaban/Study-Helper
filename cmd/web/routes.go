@@ -2,6 +2,8 @@ package main
 
 import (
 	"net/http"
+
+	"github.com/justinas/alice"
 )
 
 func (app *application) routes() http.Handler {
@@ -9,47 +11,55 @@ func (app *application) routes() http.Handler {
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 
+	dynamicMiddleware := alice.New(app.session.LoadAndSave)
+
+	//signup
+	mux.Handle("GET /user/signup", dynamicMiddleware.ThenFunc(app.showSignupForm))
+	mux.Handle("POST /user/signup", dynamicMiddleware.ThenFunc(app.signupUser))
+
+	mux.Handle("GET /user/login", dynamicMiddleware.ThenFunc(app.showLoginForm))
+	mux.Handle("POST /user/login", dynamicMiddleware.ThenFunc(app.loginUser))
+	mux.Handle("POST /user/logout", dynamicMiddleware.ThenFunc(app.logoutUser))
+
 	//the home page
-	mux.HandleFunc("GET /", app.home)
+	mux.Handle("GET /", dynamicMiddleware.ThenFunc(app.home))
 
 	//Handle daily goals form
-	mux.HandleFunc("GET /goal", app.showDailyGoalsForm)
+	mux.Handle("GET /goal", dynamicMiddleware.ThenFunc(app.showDailyGoalsForm))
 	//Handle daily goals submissions
-	mux.HandleFunc("POST /goal", app.addGoals)
+	mux.Handle("POST /goal", dynamicMiddleware.ThenFunc(app.addGoals))
 	//Get all goal entries
-	mux.HandleFunc("GET /goals", app.listGoals)
+	mux.Handle("GET /goals", dynamicMiddleware.ThenFunc(app.listGoals))
 	//Handle delete a goal
-	mux.HandleFunc("POST /goals/delete", app.deleteGoal)
+	mux.Handle("POST /goals/delete", dynamicMiddleware.ThenFunc(app.deleteGoal))
 	//Handle edit goal form
-	mux.HandleFunc("GET /goals/edit", app.showeditGoalForm)
+	mux.Handle("GET /goals/edit", dynamicMiddleware.ThenFunc(app.showeditGoalForm))
 	//Hnalde the edit goal
-	mux.HandleFunc("POST /goals/edit", app.editGoal)
+	mux.Handle("POST /goals/edit", dynamicMiddleware.ThenFunc(app.editGoal))
 
 	//Handle study sessions form
-	mux.HandleFunc("GET /session", app.showSessionsForm)
+	mux.Handle("GET /session", dynamicMiddleware.ThenFunc(app.showSessionsForm))
 	//Handle study session submissions
-	mux.HandleFunc("POST /session", app.addSessions)
+	mux.Handle("POST /session", dynamicMiddleware.ThenFunc(app.addSessions))
 	//Get all session entries
-	mux.HandleFunc("GET /sessions", app.listSessions)
+	mux.Handle("GET /sessions", dynamicMiddleware.ThenFunc(app.listSessions))
 	//Handle delete a session
-	mux.HandleFunc("POST /sessions/delete", app.deleteSession)
+	mux.Handle("POST /sessions/delete", dynamicMiddleware.ThenFunc(app.deleteSession))
 	//Handle edit session form
-	mux.HandleFunc("GET /sessions/edit", app.showeditSessionForm)
+	mux.Handle("GET /sessions/edit", dynamicMiddleware.ThenFunc(app.showeditSessionForm))
 	//Hnalde the edit session
-	mux.HandleFunc("POST /sessions/edit", app.editSession)
+	mux.Handle("POST /sessions/edit", dynamicMiddleware.ThenFunc(app.editSession))
 	//Handle show session form
-	mux.HandleFunc("GET /sessions/start", app.showstartSessionInfo)
+	mux.Handle("GET /sessions/start", dynamicMiddleware.ThenFunc(app.showstartSessionInfo))
 
 	//Handle quote form
-	mux.HandleFunc("GET /quote", app.showQuoteForm)
+	mux.Handle("GET /quote", dynamicMiddleware.ThenFunc(app.showQuoteForm))
 	//Handle quote submissions
-	mux.HandleFunc("POST /quote", app.addQuote)
+	mux.Handle("POST /quote", dynamicMiddleware.ThenFunc(app.addQuote))
 	//Get all quote entries
-	mux.HandleFunc("GET /quotes", app.listQuotes)
+	mux.Handle("GET /quotes", dynamicMiddleware.ThenFunc(app.listQuotes))
 	//Handle delete a quote
-	mux.HandleFunc("POST /quotes/delete", app.deleteQuote)
-
-	mux.HandleFunc("GET /success", app.showSuccessMessage)
+	mux.Handle("POST /quotes/delete", dynamicMiddleware.ThenFunc(app.deleteQuote))
 
 	return app.loggingMiddleware(mux)
 }

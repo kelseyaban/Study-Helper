@@ -1,6 +1,9 @@
 package main
 
-import "github.com/abankelsey/study_helper/internal/data"
+import (
+	"github.com/abankelsey/study_helper/internal/data"
+	"time"
+)
 
 type TemplateData struct {
 	Title       string
@@ -10,7 +13,9 @@ type TemplateData struct {
 	GoalList    []*data.Goals    //stores the list of goal entries
 	SessionList []*data.Sessions //stores the list of session entries
 	QuoteList   []*data.Quotes   //stores the list of quote entries
-
+	RandomQuote *data.Quotes
+	CurrentTime time.Time
+	Flash       string
 }
 
 func NewTemplateData() *TemplateData {

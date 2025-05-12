@@ -2,17 +2,19 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"database/sql"
 	"flag"
 	"html/template"
 	"log/slog"
+	"net/http"
 	"os"
 	"time"
 
 	// the '_' means that we will not direct use the pq package
-	_ "github.com/lib/pq"
-
 	"github.com/abankelsey/study_helper/internal/data"
+	"github.com/alexedwards/scs/v2"
+	_ "github.com/lib/pq"
 )
 
 // Dependency injection
@@ -22,13 +24,17 @@ type application struct {
 	logger        *slog.Logger // Logger for logging application events
 	quotes        *data.QuotesModel
 	sessions      *data.SessionsModel
+	session       *scs.SessionManager
 	templateCache map[string]*template.Template // Cache for HTML templates
+	tlsConfig     *tls.Config
+	users         *data.UsersModel
 }
 
 func main() {
 	// Parsing command-line flags for the HTTP server address and DB connection string
 	addr := flag.String("addr", "", "HTTP network address")
 	dsn := flag.String("dsn", "", "PostgreSQL DSN")
+	// secret := flag.String("secret", "KidajE20eufaLsfdS*20+jEhrwrw_uYh", "Secret key")
 
 	flag.Parse()
 
@@ -52,15 +58,29 @@ func main() {
 
 	defer db.Close()
 
+	sessionManager := scs.New()
+	sessionManager.Lifetime = 12 * time.Hour
+	sessionManager.Cookie.HttpOnly = true
+	sessionManager.Cookie.SameSite = http.SameSiteLaxMode
+	sessionManager.Cookie.Secure = false // ⚠️ only for local dev
+
+	//ECDHE -
+	tlsConfig := &tls.Config{
+		PreferServerCipherSuites: true,
+		CurvePreferences:         []tls.CurveID{tls.X25519, tls.CurveP256},
+	}
+
 	// Initialize the application with the dependencies
 	app := &application{
-		addr: addr,
-
+		addr:          addr,
 		goals:         &data.GoalsModel{DB: db},
 		logger:        logger,
 		quotes:        &data.QuotesModel{DB: db},
 		sessions:      &data.SessionsModel{DB: db},
 		templateCache: templateCache,
+		session:       sessionManager,
+		tlsConfig:     tlsConfig,
+		users:         &data.UsersModel{DB: db},
 	}
 
 	// Start the application server
