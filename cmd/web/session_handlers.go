@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/abankelsey/study_helper/internal/data"
 	"github.com/abankelsey/study_helper/internal/validator"
+	"github.com/justinas/nosurf"
 	"net/http"
 	"strconv"
 	"time"
@@ -15,6 +16,7 @@ func (app *application) showSessionsForm(w http.ResponseWriter, r *http.Request)
 	data := NewTemplateData()
 	data.Title = "Session"
 	data.HeaderText = "Add a Session"
+	data.CSRFToken = nosurf.Token(r)
 
 	// Render the sessions form template
 	err := app.render(w, http.StatusOK, "sessions.tmpl", data)
@@ -66,6 +68,13 @@ func (app *application) addSessions(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid value for completion status", http.StatusBadRequest)
 		return
 	}
+	// Get the user ID from the session
+	id := app.session.GetInt(r, "user_id")
+	if id == 0 {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+	userID := int64(id)
 
 	// Construct sessions object
 	sessions := &data.Sessions{
@@ -75,6 +84,7 @@ func (app *application) addSessions(w http.ResponseWriter, r *http.Request) {
 		Start_date:   start_date,
 		End_date:     end_date,
 		Is_completed: isCompleted,
+		User_id:      userID,
 	}
 
 	// Validate
@@ -85,6 +95,7 @@ func (app *application) addSessions(w http.ResponseWriter, r *http.Request) {
 		data := NewTemplateData()
 		data.Title = "Study Session"
 		data.HeaderText = "Study Session"
+		data.CSRFToken = nosurf.Token(r)
 		data.FormErrors = v.Errors
 		data.FormData = map[string]string{
 			"title":        title,
@@ -113,15 +124,24 @@ func (app *application) addSessions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//set session data
-	app.session.Put(r.Context(), "flash", "Session Successfully Added")
+	app.session.Put(r, "flash", "Session Successfully Added")
 
 	http.Redirect(w, r, "/sessions", http.StatusSeeOther)
 }
 
 // the listSessions retrieves and displays all session entries
 func (app *application) listSessions(w http.ResponseWriter, r *http.Request) {
+
+	// Get userID from the session
+	id := app.session.GetInt(r, "user_id")
+	if id == 0 {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+	userID := int64(id)
+
 	// Fetch all gaol entries from the database
-	sessions, err := app.sessions.SessionList() // fetches all stored session sntries and return them as a list
+	sessions, err := app.sessions.SessionList(userID) // fetches all stored session sntries and return them as a list
 	if err != nil {
 		app.logger.Error("failed to fetch session", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -129,12 +149,13 @@ func (app *application) listSessions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Get/Check for the flash message
-	flash := app.session.PopString(r.Context(), "flash")
+	flash := app.session.PopString(r, "flash")
 
 	// Prepare the template data with the retrieved journal entries
 	data := NewTemplateData()
 	data.Title = "Session List"
 	data.HeaderText = "All Session Entries"
+	data.CSRFToken = nosurf.Token(r)
 	data.SessionList = sessions // Assign fetched session entries to the template data
 	data.Flash = flash
 
@@ -149,6 +170,15 @@ func (app *application) listSessions(w http.ResponseWriter, r *http.Request) {
 
 // the deleteSession will delete a session from the database
 func (app *application) deleteSession(w http.ResponseWriter, r *http.Request) {
+
+	// Check and parse user ID from session
+	id := app.session.GetInt(r, "user_id")
+	if id == 0 {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+	userID := int64(id)
+
 	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, "Unable to parse form", http.StatusBadRequest)
@@ -162,7 +192,7 @@ func (app *application) deleteSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = app.sessions.DeleteSession(sessionID)
+	err = app.sessions.DeleteSession(sessionID, userID)
 	if err != nil {
 		http.Error(w, "Could not delete session", http.StatusInternalServerError)
 		return
@@ -194,6 +224,7 @@ func (app *application) showeditSessionForm(w http.ResponseWriter, r *http.Reque
 	data := NewTemplateData()
 	data.Title = "Edit Session"
 	data.HeaderText = "Edit Session"
+	data.CSRFToken = nosurf.Token(r)
 	data.FormData = map[string]string{
 		"session_id":   fmt.Sprintf("%d", session.Session_id),
 		"title":        session.Title,
@@ -280,6 +311,7 @@ func (app *application) editSession(w http.ResponseWriter, r *http.Request) {
 		data := NewTemplateData()
 		data.Title = "Edit Session"
 		data.HeaderText = "Edit Session"
+		data.CSRFToken = nosurf.Token(r)
 		data.FormErrors = v.Errors
 		data.FormData = map[string]string{
 			"session_id":   sessionIDStr,
@@ -334,6 +366,7 @@ func (app *application) showstartSessionInfo(w http.ResponseWriter, r *http.Requ
 	data := NewTemplateData()
 	data.Title = "Session Started"
 	data.HeaderText = "Session Started"
+	data.CSRFToken = nosurf.Token(r)
 	data.FormData = map[string]string{
 		"session_id":   fmt.Sprintf("%d", session.Session_id),
 		"title":        session.Title,

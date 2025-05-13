@@ -20,7 +20,10 @@
                 <li><a href="/quote">Add Quote</a></li>
                 <li><a href="/quotes">View Quotes</a></li> 
             </ul>
-            
+            <form method="POST" action="/user/logout" class="logout-form" onsubmit="return confirm('Are you sure you want to logout?');">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+        <button type="submit" class="logout">Logout</button>
+    </form>           
         </div>
     </div> 
 
@@ -82,6 +85,7 @@
                                 <button class="editbutton">Edit</button>
                             </a>
                             <form method="POST" action="/goals/delete" onsubmit="return confirm('Are you sure you want to delete?');">
+                            <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
                                 <input type="hidden" name="goal_id" value="{{ .Goal_id }}">
                                 <button type="submit" class="delete-btn">Done</button>
                             </form>

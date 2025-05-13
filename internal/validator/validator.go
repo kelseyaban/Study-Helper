@@ -3,6 +3,7 @@ package validator
 import (
 	"regexp"
 	"strings"
+	"time"
 	"unicode/utf8"
 )
 
@@ -50,4 +51,9 @@ func MaxLength(value string, n int) bool {
 
 func IsValidEmail(email string) bool {
 	return EmailRX.MatchString(email)
+}
+
+// Checks if a time.Time value is not the zero value
+func IsValidDate(value time.Time) bool {
+	return !value.IsZero()
 }

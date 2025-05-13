@@ -18,13 +18,14 @@
                 <li><a href="/session">Add New Session</a></li>
                 <li><a href="/sessions">View Sessions</a></li>
                 <li><a href="/quote">Add Quote</a></li>
-                <li><a href="/quotes">View Quotes</a></li>
+                <li><a href="/quotes">View Quotes</a></li> 
             </ul>
-            <div class="profile">
-                <a href="/">Profile</a>
-            </div>
+            <form method="POST" action="/user/logout" class="logout-form" onsubmit="return confirm('Are you sure you want to logout?');">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+        <button type="submit" class="logout">Logout</button>
+    </form>           
         </div>
-    </div>
+    </div> 
 
     <header>
         <h1>{{.HeaderText}}</h1>
@@ -32,6 +33,7 @@
 
     <div class="form-container">
        <form action="/quote" method="POST">
+       <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
            <div class="form-group">
                 <label for="content">Quote:</label>
                <textarea id="content" name="content" placeholder="Write your motivational quote"

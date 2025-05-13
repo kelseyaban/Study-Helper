@@ -6,7 +6,7 @@
   text-decoration: none;
 }
 body {
-  background-color: lavender;
+  background-color: #E6E6FA; 
   font-family: Arial, sans-serif;
 }
 .wrapper{
@@ -48,13 +48,6 @@ body {
   background: #a16fb5;
 }
 
-.wrapper .sidebar .profile{
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-}
 .container {
   display: flex;
   justify-content: center;
@@ -451,7 +444,7 @@ footer.footer {
 }
 
 /* login */
-.login-container {
+/* .login-container {
   background-color: #d499e4;
   padding: 30px;
   border-radius: 8px;
@@ -499,7 +492,7 @@ button {
 
 button:hover {
   background-color: #ac63be;
-}
+} */
 
 
 /* Errors*/
@@ -514,3 +507,30 @@ button:hover {
 textarea.invalid {
   border: 1px solid #d84949;
 }
+
+
+
+/* logout */
+.logout-form {
+  position: absolute;
+  top: 650px;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  text-align: center;
+}
+
+.logout-form .logout {
+  width: 100%;
+  padding: 10px;
+  background-color: #b64242;
+  border-radius: 6px;
+}
+
+.logout-form .logout:hover {
+  background-color: #cc5c5c;
+}
+
+
+/* signup */

@@ -7,13 +7,13 @@ import (
 	"flag"
 	"html/template"
 	"log/slog"
-	"net/http"
 	"os"
 	"time"
 
 	// the '_' means that we will not direct use the pq package
 	"github.com/abankelsey/study_helper/internal/data"
-	"github.com/alexedwards/scs/v2"
+
+	"github.com/golangcollege/sessions"
 	_ "github.com/lib/pq"
 )
 
@@ -24,7 +24,7 @@ type application struct {
 	logger        *slog.Logger // Logger for logging application events
 	quotes        *data.QuotesModel
 	sessions      *data.SessionsModel
-	session       *scs.SessionManager
+	session       *sessions.Session
 	templateCache map[string]*template.Template // Cache for HTML templates
 	tlsConfig     *tls.Config
 	users         *data.UsersModel
@@ -34,7 +34,7 @@ func main() {
 	// Parsing command-line flags for the HTTP server address and DB connection string
 	addr := flag.String("addr", "", "HTTP network address")
 	dsn := flag.String("dsn", "", "PostgreSQL DSN")
-	// secret := flag.String("secret", "KidajE20eufaLsfdS*20+jEhrwrw_uYh", "Secret key")
+	secret := flag.String("secret", "KidajE20eufaLsfdS*20+jEhrwrw_uYh", "Secret key")
 
 	flag.Parse()
 
@@ -58,16 +58,12 @@ func main() {
 
 	defer db.Close()
 
-	sessionManager := scs.New()
-	sessionManager.Lifetime = 12 * time.Hour
-	sessionManager.Cookie.HttpOnly = true
-	sessionManager.Cookie.SameSite = http.SameSiteLaxMode
-	sessionManager.Cookie.Secure = false // ⚠️ only for local dev
+	session := sessions.New([]byte(*secret))
+	session.Lifetime = 1 * time.Hour
+	session.Secure = true
 
-	//ECDHE -
 	tlsConfig := &tls.Config{
-		PreferServerCipherSuites: true,
-		CurvePreferences:         []tls.CurveID{tls.X25519, tls.CurveP256},
+		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
 	}
 
 	// Initialize the application with the dependencies
@@ -78,7 +74,7 @@ func main() {
 		quotes:        &data.QuotesModel{DB: db},
 		sessions:      &data.SessionsModel{DB: db},
 		templateCache: templateCache,
-		session:       sessionManager,
+		session:       session,
 		tlsConfig:     tlsConfig,
 		users:         &data.UsersModel{DB: db},
 	}

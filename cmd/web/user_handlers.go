@@ -2,11 +2,13 @@ package main
 
 import (
 	"errors"
-	"github.com/abankelsey/study_helper/internal/data"
-	"github.com/abankelsey/study_helper/internal/validator"
 	"math/rand"
 	"net/http"
 	"time"
+
+	"github.com/abankelsey/study_helper/internal/data"
+	"github.com/abankelsey/study_helper/internal/validator"
+	"github.com/justinas/nosurf"
 )
 
 // the home handles requests to display the home page
@@ -15,19 +17,9 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	data := NewTemplateData()
 	data.Title = "Home"
 	data.HeaderText = "Welcome"
+	data.CSRFToken = nosurf.Token(r)
 
-	// Fetch all goals for display on the homepage
-	goals, err := app.goals.GoalList()
-	if err != nil {
-		app.logger.Error("failed to fetch goals for homepage", "error", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	//  Assign to template data so they render on the home page
-	data.GoalList = goals
-
-	userId := app.session.GetInt(r.Context(), "user_id")
+	userId := app.session.GetInt(r, "user_id")
 	app.logger.Info("session user_id", "value", userId)
 
 	// userId := app.session.GetInt(r.Context(), "user_id")
@@ -37,6 +29,17 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	}
 	userID := int64(userId)
 	app.logger.Info("user logged in", "user_id", userID)
+
+	// Fetch all goals for display on the homepage
+	goals, err := app.goals.GoalList(userID)
+	if err != nil {
+		app.logger.Error("failed to fetch goals for homepage", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	//  Assign to template data so they render on the home page
+	data.GoalList = goals
 
 	quotes, err := app.quotes.QuoteList(userID)
 	if err != nil {
@@ -63,11 +66,16 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (app *application) isAuthenticated(r *http.Request) bool {
+	return app.session.Exists(r, "authenticatedUserID")
+}
+
 func (app *application) showSignupForm(w http.ResponseWriter, r *http.Request) {
 	// Initialize template data for the signup form
 	data := NewTemplateData()
 	data.Title = "Signup"
 	data.HeaderText = "Signup"
+	data.CSRFToken = nosurf.Token(r)
 
 	// Render the daily goals form template
 	err := app.render(w, http.StatusOK, "signup.tmpl", data)
@@ -107,7 +115,8 @@ func (app *application) signupUser(w http.ResponseWriter, r *http.Request) {
 	if !v.ValidData() {
 		data := NewTemplateData()
 		data.Title = "Signup"
-		data.HeaderText = "Signup"
+		data.HeaderText = "Study Helper"
+		data.CSRFToken = nosurf.Token(r)
 		data.FormErrors = v.Errors
 		data.FormData = map[string]string{
 			"name":  name,
@@ -139,6 +148,7 @@ func (app *application) showLoginForm(w http.ResponseWriter, r *http.Request) {
 	data := NewTemplateData()
 	data.Title = "Login"
 	data.HeaderText = "Login"
+	data.CSRFToken = nosurf.Token(r)
 
 	// Render the daily goals form template
 	err := app.render(w, http.StatusOK, "login.tmpl", data)
@@ -174,15 +184,16 @@ func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
 
 	// If validation errors, re-render form
 	if len(errors_user) > 0 {
-		td := NewTemplateData()
-		td.Title = "Login"
-		td.HeaderText = "Login"
-		td.FormErrors = errors_user
-		td.FormData = map[string]string{
+		data := NewTemplateData()
+		data.Title = "Login"
+		data.HeaderText = "Login"
+		data.CSRFToken = nosurf.Token(r)
+		data.FormErrors = errors_user
+		data.FormData = map[string]string{
 			"email": email,
 		}
 
-		err := app.render(w, http.StatusUnprocessableEntity, "login.tmpl", td)
+		err := app.render(w, http.StatusUnprocessableEntity, "login.tmpl", data)
 		if err != nil {
 			app.logger.Error("failed to render login form", "template", "login.tmpl", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -194,17 +205,18 @@ func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
 	user, err := app.users.Authenticate(email, password)
 	if err != nil {
 		if errors.Is(err, data.ErrInvalidCredentials) {
-			td := NewTemplateData()
-			td.Title = "Login"
-			td.HeaderText = "Login"
-			td.FormErrors = map[string]string{
+			data := NewTemplateData()
+			data.Title = "Login"
+			data.HeaderText = "Login"
+			data.CSRFToken = nosurf.Token(r)
+			data.FormErrors = map[string]string{
 				"generic": "Invalid email or password.",
 			}
-			td.FormData = map[string]string{
+			data.FormData = map[string]string{
 				"email": email,
 			}
 
-			err := app.render(w, http.StatusUnauthorized, "login.tmpl", td)
+			err := app.render(w, http.StatusUnauthorized, "login.tmpl", data)
 			if err != nil {
 				app.logger.Error("failed to render login form", "template", "login.tmpl", "error", err)
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -219,13 +231,16 @@ func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Store the user ID in the session
-	app.session.Put(r.Context(), "user_id", user.User_id)
-	app.logger.Info("user logged in", "user_id", user.User_id)
+	app.session.Put(r, "user_id", int(user.User_id))
+	app.session.Put(r, "authenticatedUserID", true)
+	// app.logger.Info("user logged in", "user_id", user.User_id)
 
 	// Redirect to the homepage
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func (app *application) logoutUser(w http.ResponseWriter, r *http.Request) {
+	app.session.Destroy(r)
 
+	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 }

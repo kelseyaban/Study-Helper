@@ -4,14 +4,23 @@
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>{{.Title}}</title>
-   <link rel="stylesheet" href="/static/css/style.css">
+   <link rel="stylesheet" href="/static/css/login.css">
 </head>
 <body>
 
 
-   <div class="login-container">
+
+   <div class="form-container">
        <h1>{{ .HeaderText }}</h1>
+
+       {{with .FormErrors.generic}}
+           <div class="error">{{.}}</div>
+       {{end}}
+
+
        <form action="/user/login" method="POST">
+       <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+
 
            <div class="form-group">
                <label>Email:</label>

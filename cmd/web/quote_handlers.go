@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/abankelsey/study_helper/internal/data"
 	"github.com/abankelsey/study_helper/internal/validator"
+	"github.com/justinas/nosurf"
 	"net/http"
 	"strconv"
 )
@@ -13,6 +14,7 @@ func (app *application) showQuoteForm(w http.ResponseWriter, r *http.Request) {
 	data := NewTemplateData()
 	data.Title = "Quote"
 	data.HeaderText = "Add a Motivational Quote"
+	data.CSRFToken = nosurf.Token(r)
 
 	// Render the quote form template
 	err := app.render(w, http.StatusOK, "quotes.tmpl", data)
@@ -37,9 +39,18 @@ func (app *application) addQuote(w http.ResponseWriter, r *http.Request) {
 	// Extract form values
 	content := r.PostForm.Get("content")
 
-	// Create a quote object with the submitted data
+	// Get the user ID from the session
+	id := app.session.GetInt(r, "user_id")
+	if id == 0 {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+	userID := int64(id)
+
+	// Create a quote object with the submitted data and user ID
 	quotes := &data.Quotes{
 		Content: content,
+		User_id: userID,
 	}
 
 	// Validate the submitted quote data
@@ -51,12 +62,12 @@ func (app *application) addQuote(w http.ResponseWriter, r *http.Request) {
 		data := NewTemplateData()
 		data.Title = "Quotes"
 		data.HeaderText = "Quotes"
-		data.FormErrors = v.Errors         // Store validation errors
-		data.FormData = map[string]string{ // Retain form input values
+		data.CSRFToken = nosurf.Token(r)
+		data.FormErrors = v.Errors
+		data.FormData = map[string]string{
 			"content": content,
 		}
 
-		// Renders the quote form again with validation errors
 		err := app.render(w, http.StatusUnprocessableEntity, "quotes.tmpl", data)
 		if err != nil {
 			app.logger.Error("failed to render quote page", "template", "quotes.tmpl", "error", err, "url", r.URL.Path, "method", r.Method)
@@ -74,18 +85,18 @@ func (app *application) addQuote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//set session data
-	app.session.Put(r.Context(), "flash", "Goal Successfully Added")
+	// Set session flash message
+	app.session.Put(r, "flash", "Quote successfully added")
 
-	// Redirect user to the quotes page after successful submission
+	// Redirect user to the quotes page
 	http.Redirect(w, r, "/quotes", http.StatusSeeOther)
 }
 
 // the listQuotes handles requests to display a list of the submitted quote entries
 func (app *application) listQuotes(w http.ResponseWriter, r *http.Request) {
 	// Get userID from the session
-	id := app.session.GetInt(r.Context(), "user_id")
-	if id == 1 {
+	id := app.session.GetInt(r, "user_id")
+	if id == 0 {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -100,12 +111,13 @@ func (app *application) listQuotes(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Get/Check for the flash message
-	flash := app.session.PopString(r.Context(), "flash")
+	flash := app.session.PopString(r, "flash")
 
 	// Prepares the template data with the list of quote entries
 	data := NewTemplateData()
 	data.Title = "Quotes"
 	data.HeaderText = "Quotes"
+	data.CSRFToken = nosurf.Token(r)
 	data.QuoteList = quotes // Pass quote data to the template
 	data.Flash = flash
 
@@ -120,8 +132,8 @@ func (app *application) listQuotes(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) deleteQuote(w http.ResponseWriter, r *http.Request) {
 	// Check and parse user ID from session
-	id := app.session.GetInt(r.Context(), "user_id")
-	if id == 1 {
+	id := app.session.GetInt(r, "user_id")
+	if id == 0 {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}

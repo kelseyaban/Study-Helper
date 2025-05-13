@@ -7,6 +7,7 @@ import (
 
 	"github.com/abankelsey/study_helper/internal/data"
 	"github.com/abankelsey/study_helper/internal/validator"
+	"github.com/justinas/nosurf"
 	"strconv"
 )
 
@@ -16,6 +17,7 @@ func (app *application) showDailyGoalsForm(w http.ResponseWriter, r *http.Reques
 	data := NewTemplateData()
 	data.Title = "Daily Goals"
 	data.HeaderText = "Daily Goals"
+	data.CSRFToken = nosurf.Token(r)
 
 	// Render the daily goals form template
 	err := app.render(w, http.StatusOK, "daily_goals.tmpl", data)
@@ -57,11 +59,20 @@ func (app *application) addGoals(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get the user ID from the session
+	id := app.session.GetInt(r, "user_id")
+	if id == 0 {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+	userID := int64(id)
+
 	// Create a goals object with the submitted data
 	goals := &data.Goals{
 		Goal_text:    goal_text,
 		Is_completed: is_completed,
 		Target_date:  target_date,
+		User_id:      userID,
 	}
 
 	// Validate the submitted goals data
@@ -73,6 +84,7 @@ func (app *application) addGoals(w http.ResponseWriter, r *http.Request) {
 		data := NewTemplateData()
 		data.Title = "Daily Goals"
 		data.HeaderText = "Daily Goals"
+		data.CSRFToken = nosurf.Token(r)
 		data.FormErrors = v.Errors         // Store validation errors
 		data.FormData = map[string]string{ // Retain form input values
 			"goal_text":    goal_text,
@@ -99,7 +111,7 @@ func (app *application) addGoals(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//set session data
-	app.session.Put(r.Context(), "flash", "Goal Successfully Added")
+	app.session.Put(r, "flash", "Goal Successfully Added")
 
 	// Redirect user to the goals page
 	http.Redirect(w, r, "/goals", http.StatusSeeOther)
@@ -107,8 +119,17 @@ func (app *application) addGoals(w http.ResponseWriter, r *http.Request) {
 
 // the listGoals retrieves and displays all goal entries
 func (app *application) listGoals(w http.ResponseWriter, r *http.Request) {
+
+	// Get the user ID from the session
+	id := app.session.GetInt(r, "user_id")
+	if id == 0 {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+	userID := int64(id)
+
 	// Fetch all gaol entries from the database
-	goals, err := app.goals.GoalList() // fetches all stored goal sntries and return them as a list
+	goals, err := app.goals.GoalList(userID) // fetches all stored goal sntries and return them as a list
 	if err != nil {
 		app.logger.Error("failed to fetch goals", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -116,12 +137,13 @@ func (app *application) listGoals(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Get/Check for the flash message
-	flash := app.session.PopString(r.Context(), "flash")
+	flash := app.session.PopString(r, "flash")
 
 	// Prepare the template data with the retrieved journal entries
 	data := NewTemplateData()
 	data.Title = "Goal List"
 	data.HeaderText = "All Goal Entries"
+	data.CSRFToken = nosurf.Token(r)
 	data.GoalList = goals // Assign fetched goals entries to the template data
 	data.Flash = flash
 
@@ -136,6 +158,15 @@ func (app *application) listGoals(w http.ResponseWriter, r *http.Request) {
 
 // the deleteGoal will delete a goal from the database
 func (app *application) deleteGoal(w http.ResponseWriter, r *http.Request) {
+
+	// Check and parse user ID from session
+	id := app.session.GetInt(r, "user_id")
+	if id == 0 {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+	userID := int64(id)
+
 	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, "Unable to parse form", http.StatusBadRequest)
@@ -149,7 +180,7 @@ func (app *application) deleteGoal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = app.goals.DeleteGoal(goalID)
+	err = app.goals.DeleteGoal(goalID, userID)
 	if err != nil {
 		http.Error(w, "Could not delete goal", http.StatusInternalServerError)
 		return
@@ -181,6 +212,7 @@ func (app *application) showeditGoalForm(w http.ResponseWriter, r *http.Request)
 	data := NewTemplateData()
 	data.Title = "Edit Goal"
 	data.HeaderText = "Edit Goal"
+	data.CSRFToken = nosurf.Token(r)
 	data.FormData = map[string]string{
 		"goal_id":      fmt.Sprintf("%d", goal.Goal_id),
 		"goal_text":    goal.Goal_text,
@@ -252,6 +284,7 @@ func (app *application) editGoal(w http.ResponseWriter, r *http.Request) {
 		data := NewTemplateData()
 		data.Title = "Edit Goal"
 		data.HeaderText = "Edit Goal"
+		data.CSRFToken = nosurf.Token(r)
 		data.FormErrors = v.Errors         // Store validation errors
 		data.FormData = map[string]string{ // Retain form input values
 			"goal_id":      goalIDStr,
