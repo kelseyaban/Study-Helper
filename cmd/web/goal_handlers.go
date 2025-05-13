@@ -5,10 +5,11 @@ import (
 	"net/http"
 	"time"
 
+	"strconv"
+
 	"github.com/abankelsey/study_helper/internal/data"
 	"github.com/abankelsey/study_helper/internal/validator"
 	"github.com/justinas/nosurf"
-	"strconv"
 )
 
 // the showDailyGoals handles requests to display the daily goals form
@@ -17,6 +18,7 @@ func (app *application) showDailyGoalsForm(w http.ResponseWriter, r *http.Reques
 	data := NewTemplateData()
 	data.Title = "Daily Goals"
 	data.HeaderText = "Daily Goals"
+	data.IsAuthenticated = app.isAuthenticated(r)
 	data.CSRFToken = nosurf.Token(r)
 
 	// Render the daily goals form template
@@ -84,6 +86,7 @@ func (app *application) addGoals(w http.ResponseWriter, r *http.Request) {
 		data := NewTemplateData()
 		data.Title = "Daily Goals"
 		data.HeaderText = "Daily Goals"
+		data.IsAuthenticated = app.isAuthenticated(r)
 		data.CSRFToken = nosurf.Token(r)
 		data.FormErrors = v.Errors         // Store validation errors
 		data.FormData = map[string]string{ // Retain form input values
@@ -143,6 +146,7 @@ func (app *application) listGoals(w http.ResponseWriter, r *http.Request) {
 	data := NewTemplateData()
 	data.Title = "Goal List"
 	data.HeaderText = "All Goal Entries"
+	data.IsAuthenticated = app.isAuthenticated(r)
 	data.CSRFToken = nosurf.Token(r)
 	data.GoalList = goals // Assign fetched goals entries to the template data
 	data.Flash = flash
@@ -212,6 +216,7 @@ func (app *application) showeditGoalForm(w http.ResponseWriter, r *http.Request)
 	data := NewTemplateData()
 	data.Title = "Edit Goal"
 	data.HeaderText = "Edit Goal"
+	data.IsAuthenticated = app.isAuthenticated(r)
 	data.CSRFToken = nosurf.Token(r)
 	data.FormData = map[string]string{
 		"goal_id":      fmt.Sprintf("%d", goal.Goal_id),
@@ -284,6 +289,7 @@ func (app *application) editGoal(w http.ResponseWriter, r *http.Request) {
 		data := NewTemplateData()
 		data.Title = "Edit Goal"
 		data.HeaderText = "Edit Goal"
+		data.IsAuthenticated = app.isAuthenticated(r)
 		data.CSRFToken = nosurf.Token(r)
 		data.FormErrors = v.Errors         // Store validation errors
 		data.FormData = map[string]string{ // Retain form input values

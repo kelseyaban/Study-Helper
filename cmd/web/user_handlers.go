@@ -17,6 +17,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	data := NewTemplateData()
 	data.Title = "Home"
 	data.HeaderText = "Welcome"
+	data.IsAuthenticated = app.isAuthenticated(r)
 	data.CSRFToken = nosurf.Token(r)
 
 	userId := app.session.GetInt(r, "user_id")
@@ -75,6 +76,7 @@ func (app *application) showSignupForm(w http.ResponseWriter, r *http.Request) {
 	data := NewTemplateData()
 	data.Title = "Signup"
 	data.HeaderText = "Signup"
+	data.IsAuthenticated = app.isAuthenticated(r)
 	data.CSRFToken = nosurf.Token(r)
 
 	// Render the daily goals form template
@@ -116,6 +118,7 @@ func (app *application) signupUser(w http.ResponseWriter, r *http.Request) {
 		data := NewTemplateData()
 		data.Title = "Signup"
 		data.HeaderText = "Study Helper"
+		data.IsAuthenticated = app.isAuthenticated(r)
 		data.CSRFToken = nosurf.Token(r)
 		data.FormErrors = v.Errors
 		data.FormData = map[string]string{
@@ -148,6 +151,7 @@ func (app *application) showLoginForm(w http.ResponseWriter, r *http.Request) {
 	data := NewTemplateData()
 	data.Title = "Login"
 	data.HeaderText = "Login"
+	data.IsAuthenticated = app.isAuthenticated(r)
 	data.CSRFToken = nosurf.Token(r)
 
 	// Render the daily goals form template
@@ -187,6 +191,7 @@ func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
 		data := NewTemplateData()
 		data.Title = "Login"
 		data.HeaderText = "Login"
+		data.IsAuthenticated = app.isAuthenticated(r)
 		data.CSRFToken = nosurf.Token(r)
 		data.FormErrors = errors_user
 		data.FormData = map[string]string{
@@ -208,6 +213,7 @@ func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
 			data := NewTemplateData()
 			data.Title = "Login"
 			data.HeaderText = "Login"
+			data.IsAuthenticated = app.isAuthenticated(r)
 			data.CSRFToken = nosurf.Token(r)
 			data.FormErrors = map[string]string{
 				"generic": "Invalid email or password.",

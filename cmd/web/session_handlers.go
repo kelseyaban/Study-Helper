@@ -16,6 +16,7 @@ func (app *application) showSessionsForm(w http.ResponseWriter, r *http.Request)
 	data := NewTemplateData()
 	data.Title = "Session"
 	data.HeaderText = "Add a Session"
+	data.IsAuthenticated = app.isAuthenticated(r)
 	data.CSRFToken = nosurf.Token(r)
 
 	// Render the sessions form template
@@ -95,6 +96,7 @@ func (app *application) addSessions(w http.ResponseWriter, r *http.Request) {
 		data := NewTemplateData()
 		data.Title = "Study Session"
 		data.HeaderText = "Study Session"
+		data.IsAuthenticated = app.isAuthenticated(r)
 		data.CSRFToken = nosurf.Token(r)
 		data.FormErrors = v.Errors
 		data.FormData = map[string]string{
@@ -155,6 +157,7 @@ func (app *application) listSessions(w http.ResponseWriter, r *http.Request) {
 	data := NewTemplateData()
 	data.Title = "Session List"
 	data.HeaderText = "All Session Entries"
+	data.IsAuthenticated = app.isAuthenticated(r)
 	data.CSRFToken = nosurf.Token(r)
 	data.SessionList = sessions // Assign fetched session entries to the template data
 	data.Flash = flash
@@ -224,6 +227,7 @@ func (app *application) showeditSessionForm(w http.ResponseWriter, r *http.Reque
 	data := NewTemplateData()
 	data.Title = "Edit Session"
 	data.HeaderText = "Edit Session"
+	data.IsAuthenticated = app.isAuthenticated(r)
 	data.CSRFToken = nosurf.Token(r)
 	data.FormData = map[string]string{
 		"session_id":   fmt.Sprintf("%d", session.Session_id),
@@ -311,6 +315,7 @@ func (app *application) editSession(w http.ResponseWriter, r *http.Request) {
 		data := NewTemplateData()
 		data.Title = "Edit Session"
 		data.HeaderText = "Edit Session"
+		data.IsAuthenticated = app.isAuthenticated(r)
 		data.CSRFToken = nosurf.Token(r)
 		data.FormErrors = v.Errors
 		data.FormData = map[string]string{
@@ -366,6 +371,7 @@ func (app *application) showstartSessionInfo(w http.ResponseWriter, r *http.Requ
 	data := NewTemplateData()
 	data.Title = "Session Started"
 	data.HeaderText = "Session Started"
+	data.IsAuthenticated = app.isAuthenticated(r)
 	data.CSRFToken = nosurf.Token(r)
 	data.FormData = map[string]string{
 		"session_id":   fmt.Sprintf("%d", session.Session_id),

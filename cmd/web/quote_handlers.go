@@ -14,6 +14,7 @@ func (app *application) showQuoteForm(w http.ResponseWriter, r *http.Request) {
 	data := NewTemplateData()
 	data.Title = "Quote"
 	data.HeaderText = "Add a Motivational Quote"
+	data.IsAuthenticated = app.isAuthenticated(r)
 	data.CSRFToken = nosurf.Token(r)
 
 	// Render the quote form template
@@ -62,6 +63,7 @@ func (app *application) addQuote(w http.ResponseWriter, r *http.Request) {
 		data := NewTemplateData()
 		data.Title = "Quotes"
 		data.HeaderText = "Quotes"
+		data.IsAuthenticated = app.isAuthenticated(r)
 		data.CSRFToken = nosurf.Token(r)
 		data.FormErrors = v.Errors
 		data.FormData = map[string]string{
@@ -117,6 +119,7 @@ func (app *application) listQuotes(w http.ResponseWriter, r *http.Request) {
 	data := NewTemplateData()
 	data.Title = "Quotes"
 	data.HeaderText = "Quotes"
+	data.IsAuthenticated = app.isAuthenticated(r)
 	data.CSRFToken = nosurf.Token(r)
 	data.QuoteList = quotes // Pass quote data to the template
 	data.Flash = flash
