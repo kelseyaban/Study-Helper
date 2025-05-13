@@ -109,7 +109,7 @@ func (app *application) signupUser(w http.ResponseWriter, r *http.Request) {
 
 	// Validate form data
 	v := validator.NewValidator()
-	data.ValidateUsers(v, users)
+	data.ValidateUsers(v, users, password)
 
 	// Show form again if validation failed
 	if !v.ValidData() {

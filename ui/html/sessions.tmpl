@@ -32,6 +32,7 @@
 
     <div class="form-container">
     <form action="/session" method="POST">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
             <div class="form-group">
                 <label for="title">Session Title:</label>
                 <input type="text" id="title" name="title" placeholder="Enter session title"

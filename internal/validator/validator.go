@@ -57,3 +57,15 @@ func IsValidEmail(email string) bool {
 func IsValidDate(value time.Time) bool {
 	return !value.IsZero()
 }
+
+func HasNumber(value string) bool {
+	return regexp.MustCompile(`[0-9]`).MatchString(value)
+}
+
+func HasUpper(value string) bool {
+	return regexp.MustCompile(`[A-Z]`).MatchString(value)
+}
+
+func HasSymbol(value string) bool {
+	return regexp.MustCompile(`[!@#\$%\^&\*\(\)_\+\-=\[\]{};':"\\|,.<>\/?]`).MatchString(value)
+}

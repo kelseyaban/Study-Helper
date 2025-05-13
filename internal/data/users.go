@@ -20,13 +20,19 @@ type Users struct {
 }
 
 // validates the fields of the users struct
-func ValidateUsers(v *validator.Validator, users *Users) {
+func ValidateUsers(v *validator.Validator, users *Users, password string) {
 	v.Check(validator.NotBlank(users.Name), "name", "This field cannot be left blank")
 	v.Check(validator.MaxLength(users.Name, 50), "name", "Must not be more than 50 characters long")
-
 	v.Check(validator.NotBlank(users.Email), "email", "This field cannot be left blank")
 	v.Check(validator.IsValidEmail(users.Email), "email", "Must be a valid email address")
 	v.Check(validator.MaxLength(users.Email, 100), "email", "Must not be more than 100 characters long")
+
+	v.Check(validator.NotBlank(password), "password", "This field cannot be left blank")
+	v.Check(validator.MinLength(password, 8), "password", "Password must be at least 8 characters long")
+	v.Check(validator.MaxLength(password, 72), "password", "Password must not be more than 72 characters long") // bcrypt max
+	v.Check(validator.HasNumber(password), "password", "Password must contain at least one number")
+	v.Check(validator.HasUpper(password), "password", "Password must contain at least one uppercase letter")
+	v.Check(validator.HasSymbol(password), "password", "Password must contain at least one special character (!@#$ etc.)")
 }
 
 // TodoModel struct handles database operations related to todo
@@ -78,7 +84,7 @@ func (m *UsersModel) Authenticate(email, plainPassword string) (*Users, error) {
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, errors.New(ErrInvalidCredentials.Error())
+			return nil, ErrInvalidCredentials
 		}
 		return nil, err
 	}
@@ -86,7 +92,7 @@ func (m *UsersModel) Authenticate(email, plainPassword string) (*Users, error) {
 	// Check hashed password
 	err = bcrypt.CompareHashAndPassword(user.Password_hash, []byte(plainPassword))
 	if err != nil {
-		return nil, errors.New(ErrInvalidCredentials.Error())
+		return nil, ErrInvalidCredentials
 	}
 
 	return &user, nil
