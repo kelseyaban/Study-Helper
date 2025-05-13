@@ -47,7 +47,7 @@
                <label for="target_date">Target Date:</label>
                <input type="date" id="target_date" name="target_date"
                       value="{{index .FormData "target_date"}}"
-                      class="{{if .FormErrors.target_date}}invalid{{end}}">
+                      class="{{if .FormErrors.target_date}}invalid{{end}}" required>
                {{with .FormErrors.target_date}}
                    <div class="error">{{.}}</div>
                {{end}}

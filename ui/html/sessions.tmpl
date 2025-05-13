@@ -65,7 +65,7 @@
                 <label for="start_date">Start Date:</label>
                 <input type="date" id="start_date" name="start_date"
                     value="{{index .FormData "start_date"}}" 
-                    class="{{if .FormErrors.start_date}}invalid{{end}}">
+                    class="{{if .FormErrors.start_date}}invalid{{end}}" required>
                 {{with .FormErrors.start_date}}
                     <div class="error">{{.}}</div>
                 {{end}}
@@ -74,7 +74,7 @@
             <div class="form-group">
                 <label for="end_date">End Date:</label>
                 <input type="date" id="end_date" name="end_date"
-                    value="{{index .FormData "end_date"}}" class="{{if .FormErrors.end_date}}invalid{{end}}">
+                    value="{{index .FormData "end_date"}}" class="{{if .FormErrors.end_date}}invalid{{end}}" required>
                 {{with .FormErrors.end_date}}
                     <div class="error">{{.}}</div>
                 {{end}}
